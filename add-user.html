@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New User - Elite Management Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-blue-800 text-white">
+            <div class="p-4">
+                <h2 class="text-2xl font-semibold">Elite MGT</h2>
+            </div>
+            <nav class="mt-4">
+                <a href="dashboard.html" class="block py-2.5 px-4 hover:bg-blue-700">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
+                <a href="#" class="block py-2.5 px-4 bg-blue-900 rounded">
+                    <i class="fas fa-user-plus mr-2"></i> Add User
+                </a>
+                <a href="change-password.html" class="block py-2.5 px-4 hover:bg-blue-700">
+                    <i class="fas fa-key mr-2"></i> Change Password
+                </a>
+                <a href="#settings" class="block py-2.5 px-4 hover:bg-blue-700">
+                    <i class="fas fa-cog mr-2"></i> Settings
+                </a>
+                <button id="logoutBtn" class="block w-full text-left py-2.5 px-4 hover:bg-blue-700">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-2xl font-semibold">Add New User</h1>
+                </div>
+
+                <!-- Add User Form -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <form id="addUserForm" class="space-y-6">
+                        <!-- Name -->
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="name" name="name" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email" name="email" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Amount -->
+                        <div>
+                            <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                            <input type="text" id="amount" name="amount" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                            <select id="status" name="status" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="active">Active</option>
+                                <option value="completed">Completed</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Phone -->
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                            <input type="tel" id="phone" name="phone" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Address -->
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                            <textarea id="address" name="address" rows="3" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+
+                        <!-- Message -->
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+                            <textarea id="message" name="message" rows="3" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+
+                        <!-- Payment Information Section -->
+                        <div class="border-t pt-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Payment Information</h3>
+                            
+                            <!-- Payment To -->
+                            <div class="mb-4">
+                                <label for="payment_to" class="block text-sm font-medium text-gray-700">Payment To</label>
+                                <input type="text" id="payment_to" name="payment_to" 
+                                    value="Merchant Commercial Bank"
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <!-- Account Number -->
+                            <div class="mb-4">
+                                <label for="account_number" class="block text-sm font-medium text-gray-700">Account Number</label>
+                                <input type="text" id="account_number" name="account_number" 
+                                    value="0012239988"
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <!-- Money Due -->
+                            <div class="mb-4">
+                                <label for="money_due" class="block text-sm font-medium text-gray-700">Money Due</label>
+                                <input type="text" id="money_due" name="money_due" 
+                                    placeholder="Leave empty to use same as Amount"
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <!-- Estimated Processing Time -->
+                            <div class="mb-4">
+                                <label for="estimated_processing_time" class="block text-sm font-medium text-gray-700">Estimated Processing Time</label>
+                                <select id="estimated_processing_time" name="estimated_processing_time" 
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="1-2 minutes">1-2 minutes</option>
+                                    <option value="3-5 minutes">3-5 minutes</option>
+                                    <option value="5-10 minutes">5-10 minutes</option>
+                                    <option value="10-15 minutes">10-15 minutes</option>
+                                    <option value="15-30 minutes">15-30 minutes</option>
+                                    <option value="30-60 minutes">30-60 minutes</option>
+                                    <option value="1-2 hours">1-2 hours</option>
+                                    <option value="2-4 hours">2-4 hours</option>
+                                    <option value="4-8 hours">4-8 hours</option>
+                                    <option value="1-2 days">1-2 days</option>
+                                </select>
+                            </div>
+
+                            <!-- Initial Progress -->
+                            <div>
+                                <label for="progress_percentage" class="block text-sm font-medium text-gray-700">Initial Progress (%)</label>
+                                <div class="mt-1 flex items-center space-x-3">
+                                    <input type="range" id="progress_percentage" name="progress_percentage" 
+                                        min="0" max="100" value="0" 
+                                        class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    <span id="progressValue" class="text-sm font-medium text-gray-700 min-w-[3rem]">0%</span>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">Set the initial progress percentage for this user</p>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex items-center justify-end">
+                            <button type="submit"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <span id="buttonText">Add User</span>
+                                <span id="loading" class="hidden ml-2">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'index.html';
+            }
+            return token;
+        }
+
+        // Logout function
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        });
+
+        // Handle form submission
+        document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const buttonText = document.getElementById('buttonText');
+            const loading = document.getElementById('loading');
+
+            // Show loading state
+            buttonText.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                amount: document.getElementById('amount').value,
+                status: document.getElementById('status').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                message: document.getElementById('message').value,
+                payment_to: document.getElementById('payment_to').value,
+                account_number: document.getElementById('account_number').value,
+                money_due: document.getElementById('money_due').value || document.getElementById('amount').value, // Use amount if money_due is empty
+                estimated_processing_time: document.getElementById('estimated_processing_time').value,
+                progress_percentage: parseInt(document.getElementById('progress_percentage').value)
+            };
+
+            try {
+                const token = checkAuth();
+                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/new`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('User created successfully!');
+                    window.location.href = 'dashboard.html';
+                } else {
+                    throw new Error(data.message || 'Failed to create user');
+                }
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                // Reset button state
+                buttonText.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        });
+
+        // Progress slider functionality
+        document.getElementById('progress_percentage').addEventListener('input', function() {
+            document.getElementById('progressValue').textContent = this.value + '%';
+        });
+
+        // Auto-fill money_due when amount changes
+        document.getElementById('amount').addEventListener('input', function() {
+            const moneyDueField = document.getElementById('money_due');
+            if (!moneyDueField.value) {
+                moneyDueField.placeholder = `Leave empty to use: ${this.value}`;
+            }
+        });
+
+        // Initial auth check
+        checkAuth();
+    </script>
+</body>
+</html>

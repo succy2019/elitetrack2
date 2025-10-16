@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Elite Management Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for improved modal appearance */
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e7eb;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #2563eb;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #2563eb;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Modal animation */
+        .modal-enter {
+            animation: modalEnter 0.3s ease-out;
+        }
+        
+        @keyframes modalEnter {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            #editModal .inline-block {
+                margin: 1rem;
+                width: calc(100% - 2rem);
+                max-height: calc(100vh - 2rem);
+            }
+            
+            #editModal .bg-white.px-4 {
+                max-height: calc(100vh - 8rem);
+            }
+        }
+        
+        /* Focus states for better accessibility */
+        .form-input:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Section headers */
+        .section-header {
+            border-left: 4px solid currentColor;
+            padding-left: 0.75rem;
+        }
+        
+        /* Required field indicator */
+        .required::after {
+            content: ' *';
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-blue-800 text-white">
+            <div class="p-4">
+                <h2 class="text-2xl font-semibold">Elite MGT</h2>
+            </div>
+            <nav class="mt-4">
+                <a href="dashboard.html" class="block py-2.5 px-4 bg-blue-900 rounded hover:bg-blue-700">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
+                <a href="add-user.html" class="block py-2.5 px-4 hover:bg-blue-700">
+                    <i class="fas fa-user-plus mr-2"></i> Add User
+                </a>
+                <a href="change-password.html" class="block py-2.5 px-4 hover:bg-blue-700">
+                    <i class="fas fa-key mr-2"></i> Change Password
+                </a>
+                <a href="#settings" class="block py-2.5 px-4 hover:bg-blue-700">
+                    <i class="fas fa-cog mr-2"></i> Settings
+                </a>
+                <button id="logoutBtn" class="block w-full text-left py-2.5 px-4 hover:bg-blue-700">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-2xl font-semibold">Dashboard</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="add-user.html" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-user-plus mr-2"></i> Add New User
+                    </a>
+                    <span id="adminEmail" class="text-gray-600"></span>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <i class="fas fa-users text-blue-800"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-500 text-sm">Total Users</h3>
+                            <p id="totalUsers" class="text-2xl font-semibold">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <i class="fas fa-check text-green-800"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-500 text-sm">Active Users</h3>
+                            <p id="activeUsers" class="text-2xl font-semibold">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-yellow-100 rounded-full">
+                            <i class="fas fa-clock text-yellow-800"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-gray-500 text-sm">Pending Users</h3>
+                            <p id="pendingUsers" class="text-2xl font-semibold">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold">Recent Users</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Track Link</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Users will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50 overflow-y-auto">
+        <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-4 text-center">
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-4xl my-4">
+                <!-- Modal Header -->
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                    <h3 class="text-xl font-semibold text-white flex items-center">
+                        <i class="fas fa-user-edit mr-3"></i>
+                        Edit User Information
+                    </h3>
+                    <button type="button" id="closeModalBtn" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="bg-white px-4 py-4 sm:px-6 sm:py-6 max-h-[70vh] overflow-y-auto">
+                    <form id="editForm" class="space-y-4 sm:space-y-6">
+                        <input type="hidden" id="editUserId">
+                        
+                        <!-- Personal Information Section -->
+                        <div class="bg-gray-50 rounded-lg p-3 sm:p-4">
+                            <h4 class="text-sm sm:text-md font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+                                <i class="fas fa-user mr-2 text-blue-600"></i>
+                                Personal Information
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1 required">Full Name</label>
+                                    <input type="text" id="editName" required 
+                                           class="form-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1 required">Email Address</label>
+                                    <input type="email" id="editEmail" required 
+                                           class="form-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                    <input type="tel" id="editPhone" 
+                                           class="form-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <select id="editStatus" 
+                                            class="form-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                        <option value="active">Active</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="processing">Processing</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                <input type="text" id="editAddress" 
+                                       class="form-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                            </div>
+                        </div>
+
+                        <!-- Financial Information Section -->
+                        <div class="bg-green-50 rounded-lg p-3 sm:p-4">
+                            <h4 class="text-sm sm:text-md font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+                                <i class="fas fa-dollar-sign mr-2 text-green-600"></i>
+                                Financial Information
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2 text-gray-500">$</span>
+                                        <input type="number" id="editAmount" min="0" step="0.01" 
+                                               class="form-input w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Money Due</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2 text-gray-500">$</span>
+                                        <input type="number" id="editMoneyDue" min="0" step="0.01" 
+                                               class="form-input w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information Section -->
+                        <div class="bg-yellow-50 rounded-lg p-3 sm:p-4">
+                            <h4 class="text-sm sm:text-md font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+                                <i class="fas fa-credit-card mr-2 text-yellow-600"></i>
+                                Payment Details
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Payment To</label>
+                                    <input type="text" id="editPaymentTo" 
+                                           class="form-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+                                    <input type="text" id="editAccountNumber" 
+                                           class="form-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Processing Information Section -->
+                        <div class="bg-purple-50 rounded-lg p-3 sm:p-4">
+                            <h4 class="text-sm sm:text-md font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+                                <i class="fas fa-cogs mr-2 text-purple-600"></i>
+                                Processing Information
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Processing Time</label>
+                                    <input type="text" id="editProcessingTime" 
+                                           class="form-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Progress</label>
+                                    <div class="space-y-2">
+                                        <input type="range" id="editProgressRange" min="0" max="100" 
+                                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
+                                        <div class="flex justify-between text-sm text-gray-500">
+                                            <span>0%</span>
+                                            <span id="editProgressValue" class="font-semibold text-blue-600">0%</span>
+                                            <span>100%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div id="editProgressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Additional Message</label>
+                                <textarea id="editMessage" rows="3" placeholder="Enter any additional notes or messages..." 
+                                          class="form-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:py-4 flex flex-col sm:flex-row-reverse gap-2 sm:gap-0 sticky bottom-0">
+                    <button type="button" id="saveEditBtn" 
+                            class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors sm:ml-3">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Changes
+                    </button>
+                    <button type="button" id="cancelEditBtn" 
+                            class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'index.html';
+            }
+            return token;
+        }
+
+        // Logout function
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        });
+
+        // Fetch users data
+        async function fetchUsers() {
+            const token = checkAuth();
+            console.log('Token:', token ? 'Present' : 'Missing');
+            console.log('Fetching users from:', `${window.EliteTrackConfig.API_BASE_URL}/users/all`);
+            
+            try {
+                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/all`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error:', errorText);
+                    throw new Error(`Failed to fetch users: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('Response data:', data);
+                const users = data.users || [];
+                console.log('Users array:', users);
+
+                // Update stats
+                document.getElementById('totalUsers').textContent = users.length;
+                document.getElementById('activeUsers').textContent = users.filter(u => u.status === 'active').length;
+                document.getElementById('pendingUsers').textContent = users.filter(u => u.status === 'pending').length;
+
+                // Update table
+                const tbody = document.getElementById('usersTableBody');
+                if (users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>';
+                } else {
+                    tbody.innerHTML = users.map(user => `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">${user.name}</div>
+                                <div class="text-xs text-gray-500">${user.track_id || 'N/A'}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">${user.email}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    ${user.status === 'active' ? 'bg-green-100 text-green-800' : 
+                                      user.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                                      user.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                                      'bg-gray-100 text-gray-800'}">
+                                    ${user.status}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: ${user.progress_percentage || 0}%"></div>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">${user.progress_percentage || 0}%</div>
+                                <div class="mt-1">
+                                    <input type="range" min="0" max="100" value="${user.progress_percentage || 0}" 
+                                           class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                           onchange="updateProgress(${user.id}, this.value)">
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${user.money_due || user.amount}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                ${user.track_id ? `
+                                    <button onclick="copyTrackingLink('${user.track_id}')" 
+                                            class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200">
+                                        <i class="fas fa-copy mr-1"></i>Copy Link
+                                    </button>
+                                    <a href="track.html?id=${user.track_id}" target="_blank" 
+                                       class="ml-1 inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200">
+                                        <i class="fas fa-external-link-alt mr-1"></i>View
+                                    </a>
+                                ` : 'N/A'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button onclick="editUser(${user.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error('Error fetching users:', error);
+                // Show error message in the table
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Error loading users: ' + error.message + '</td></tr>';
+            }
+        }
+
+        // Edit user function
+        async function editUser(id) {
+            console.log('Edit user:', id);
+            
+            const token = checkAuth();
+            try {
+                // Find the user in the current users array
+                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/all`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user data');
+                }
+                
+                const data = await response.json();
+                const users = data.users || [];
+                const user = users.find(u => u.id === id);
+                
+                if (!user) {
+                    throw new Error('User not found');
+                }
+                
+                // Populate the form with user data
+                document.getElementById('editUserId').value = user.id;
+                document.getElementById('editName').value = user.name;
+                document.getElementById('editEmail').value = user.email;
+                document.getElementById('editAmount').value = user.amount;
+                document.getElementById('editStatus').value = user.status;
+                document.getElementById('editPhone').value = user.phone;
+                document.getElementById('editAddress').value = user.address;
+                document.getElementById('editMessage').value = user.message;
+                document.getElementById('editPaymentTo').value = user.payment_to || 'Merchant Commercial Bank';
+                document.getElementById('editAccountNumber').value = user.account_number || '0012239988';
+                document.getElementById('editProcessingTime').value = user.estimated_processing_time || '1-2 minutes';
+                document.getElementById('editMoneyDue').value = user.money_due || user.amount;
+                document.getElementById('editProgressRange').value = user.progress_percentage || 0;
+                document.getElementById('editProgressValue').textContent = `${user.progress_percentage || 0}%`;
+                
+                // Show the modal with animation
+                const modal = document.getElementById('editModal');
+                modal.classList.remove('hidden');
+                const modalContent = modal.querySelector('.inline-block');
+                modalContent.classList.add('modal-enter');
+                
+                // Add event listener for progress slider
+                const progressRange = document.getElementById('editProgressRange');
+                const progressValue = document.getElementById('editProgressValue');
+                const progressBar = document.getElementById('editProgressBar');
+                
+                // Update progress display
+                const updateProgressDisplay = (value) => {
+                    progressValue.textContent = `${value}%`;
+                    progressBar.style.width = `${value}%`;
+                };
+                
+                // Initial update
+                updateProgressDisplay(user.progress_percentage || 0);
+                
+                progressRange.addEventListener('input', (e) => {
+                    updateProgressDisplay(e.target.value);
+                });
+                
+            } catch (error) {
+                console.error('Error in edit user:', error);
+                alert('Error loading user data for editing');
+            }
+        }
+
+        // Delete user function
+        async function deleteUser(id) {
+            const token = checkAuth();
+            if (confirm('Are you sure you want to delete this user?')) {
+                try {
+                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/delete`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id })
+                });                    if (response.ok) {
+                        fetchUsers(); // Refresh the user list
+                    } else {
+                        throw new Error('Failed to delete user');
+                    }
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                    alert('Failed to delete user');
+                }
+            }
+        }
+
+        // Modal event handlers
+        document.getElementById('cancelEditBtn').addEventListener('click', () => {
+            document.getElementById('editModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('editModal').classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('editModal').addEventListener('click', (e) => {
+            if (e.target.id === 'editModal') {
+                document.getElementById('editModal').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('saveEditBtn').addEventListener('click', async () => {
+            const token = checkAuth();
+            const userId = document.getElementById('editUserId').value;
+            
+            // Form validation
+            const nameField = document.getElementById('editName');
+            const emailField = document.getElementById('editEmail');
+            
+            if (!nameField.value.trim()) {
+                nameField.focus();
+                nameField.classList.add('border-red-500');
+                alert('Name is required');
+                return;
+            }
+            
+            if (!emailField.value.trim()) {
+                emailField.focus();
+                emailField.classList.add('border-red-500');
+                alert('Email is required');
+                return;
+            }
+            
+            // Reset error states
+            nameField.classList.remove('border-red-500');
+            emailField.classList.remove('border-red-500');
+            
+            // Disable button and show loading state
+            const saveBtn = document.getElementById('saveEditBtn');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+            
+            const userData = {
+                id: parseInt(userId),
+                name: nameField.value.trim(),
+                email: emailField.value.trim(),
+                amount: document.getElementById('editAmount').value,
+                status: document.getElementById('editStatus').value,
+                phone: document.getElementById('editPhone').value,
+                address: document.getElementById('editAddress').value,
+                message: document.getElementById('editMessage').value,
+                payment_to: document.getElementById('editPaymentTo').value,
+                account_number: document.getElementById('editAccountNumber').value,
+                estimated_processing_time: document.getElementById('editProcessingTime').value,
+                money_due: document.getElementById('editMoneyDue').value,
+                progress_percentage: parseInt(document.getElementById('editProgressRange').value)
+            };
+
+            try {
+                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                console.log('Update response status:', response.status);
+                console.log('Update response ok:', response.ok);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Update successful:', result);
+                    // Close modal and refresh user list
+                    document.getElementById('editModal').classList.add('hidden');
+                    fetchUsers();
+                    
+                    // Show success message
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    successMsg.innerHTML = '<i class="fas fa-check-circle mr-2"></i>User updated successfully!';
+                    document.body.appendChild(successMsg);
+                    setTimeout(() => successMsg.remove(), 3000);
+                } else {
+                    // Get error message - read response as text first
+                    let errorMessage = 'Failed to update user';
+                    try {
+                        const errorText = await response.text();
+                        console.error('Error response text:', errorText);
+                        
+                        // Try to parse as JSON
+                        try {
+                            const errorData = JSON.parse(errorText);
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (parseError) {
+                            // If not JSON, use the text as error message
+                            errorMessage = `Server error (${response.status}): ${errorText}`;
+                        }
+                    } catch (textError) {
+                        console.error('Error reading response text:', textError);
+                        errorMessage = `Server error (${response.status}): Unable to read error message`;
+                    }
+                    throw new Error(errorMessage);
+                }
+            } catch (error) {
+                console.error('Error updating user:', error);
+                
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Error updating user: ' + error.message;
+                document.body.appendChild(errorMsg);
+                setTimeout(() => errorMsg.remove(), 5000);
+            } finally {
+                // Re-enable button
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            }
+        });
+
+        // Update user progress
+        async function updateProgress(userId, progressPercentage) {
+            const token = checkAuth();
+            try {
+                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/progress`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        id: userId, 
+                        progress_percentage: parseInt(progressPercentage) 
+                    })
+                });
+
+                if (response.ok) {
+                    // Update the progress bar visually
+                    const progressBar = document.querySelector(`input[onchange*="${userId}"]`).parentNode.parentNode.querySelector('.bg-blue-600');
+                    const progressText = document.querySelector(`input[onchange*="${userId}"]`).parentNode.parentNode.querySelector('.text-xs');
+                    progressBar.style.width = `${progressPercentage}%`;
+                    progressText.textContent = `${progressPercentage}%`;
+                } else {
+                    throw new Error('Failed to update progress');
+                }
+            } catch (error) {
+                console.error('Error updating progress:', error);
+                alert('Failed to update progress');
+            }
+        }
+
+        // Copy tracking link to clipboard
+        async function copyTrackingLink(trackId) {
+            const link = `${window.location.origin}/elitetrack2/track.html?id=${trackId}`;
+            try {
+                await navigator.clipboard.writeText(link);
+                
+                // Show temporary success message
+                const button = event.target.closest('button');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+                button.className = button.className.replace('bg-blue-100 hover:bg-blue-200', 'bg-green-100 hover:bg-green-200');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.className = button.className.replace('bg-green-100 hover:bg-green-200', 'bg-blue-100 hover:bg-blue-200');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = link;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Tracking link copied to clipboard!');
+            }
+        }
+
+        // Initial load
+        checkAuth();
+        fetchUsers();
+
+        // Refresh data periodically
+        setInterval(fetchUsers, 30000); // Refresh every 30 seconds
+    </script>
+</body>
+</html>
