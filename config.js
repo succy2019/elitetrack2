@@ -19,7 +19,7 @@ const CONFIG = {
     
     // Production: Frontend on Vercel, Backend on separate server
     production: {
-        API_BASE_URL: 'https://your-backend-domain.com/api', // 🔥 UPDATE THIS WITH YOUR PHP SERVER URL
+        API_BASE_URL: 'https://track.digitalexpertstocknetwork.live/api', // 🔥 UPDATE THIS WITH YOUR PHP SERVER URL
         APP_BASE_URL: '',
         ENVIRONMENT: 'production'
     }
