@@ -6,7 +6,7 @@
 // Auto-detect environment based on hostname
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const isXampp = window.location.pathname.includes('/elitetrack2/');
-const isVercel = window.location.hostname.includes('.vercel.app') || window.location.hostname.includes('yourdomain.com');
+const isVercel = window.location.hostname.includes('.vercel.app');
 
 // Environment configuration
 const CONFIG = {
@@ -19,14 +19,19 @@ const CONFIG = {
     
     // Production: Frontend on Vercel, Backend on separate server
     production: {
-        API_BASE_URL: 'https://track.digitalexpertstocknetwork.live/api', // 🔥 UPDATE THIS WITH YOUR PHP SERVER URL
+        API_BASE_URL: 'https://track.digitalexpertstocknetwork.live/api',
         APP_BASE_URL: '',
         ENVIRONMENT: 'production'
     }
 };
 
 // Auto-select configuration based on environment
-const CURRENT_CONFIG = (isLocalhost && isXampp) ? CONFIG.local : CONFIG.production;
+let CURRENT_CONFIG;
+if (isLocalhost && isXampp) {
+    CURRENT_CONFIG = CONFIG.local;
+} else {
+    CURRENT_CONFIG = CONFIG.production;
+}
 
 // Export configuration
 window.EliteTrackConfig = CURRENT_CONFIG;

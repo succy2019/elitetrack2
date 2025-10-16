@@ -720,7 +720,10 @@
 
         // Copy tracking link to clipboard
         async function copyTrackingLink(trackId) {
-            const link = `${window.location.origin}/elitetrack2/track.html?id=${trackId}`;
+            const baseUrl = window.EliteTrackConfig.APP_BASE_URL ? 
+                `${window.location.origin}${window.EliteTrackConfig.APP_BASE_URL}` : 
+                window.location.origin;
+            const link = `${baseUrl}/track.html?id=${trackId}`;
             try {
                 await navigator.clipboard.writeText(link);
                 
