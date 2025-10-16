@@ -19,15 +19,11 @@ class CorsHandler {
             'http://localhost',
             
             // Frontend domains (where users visit your app)
-            'https://your-app.vercel.app',           // 🔥 UPDATE: Your Vercel frontend URL
-            'https://your-custom-domain.com',       // 🔥 UPDATE: Custom domain pointing to Vercel frontend
+            'https://transtrack-three.vercel.app',  // ✅ Your actual Vercel app
+            'https://your-custom-domain.com',       // 🔥 UPDATE: Custom domain if you have one
             
-            // Example:
-            // 'https://elite-track.vercel.app',     // Vercel auto-generated URL
-            // 'https://elitetrack.com',             // Your custom domain
-            
-            // Vercel preview deployments (auto-generated)
-            // 'https://elite-track-git-main-yourusername.vercel.app'
+            // Add other preview deployments if needed
+            //'https://transtrack-git-main-succy2019.vercel.app', // Git branch URL pattern
         ];
 
         $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
