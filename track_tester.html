@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track ID Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Elite Track API Tester</h1>
+        <p>This tool helps debug tracking link issues across different browsers and environments.</p>
+        
+        <div class="test-section">
+            <h3>🎯 Test Track ID</h3>
+            <select id="trackIdSelect">
+                <option value="TRK-T47SSR-3ZDWFL">TRK-T47SSR-3ZDWFL (Mike Johnson)</option>
+                <option value="TRK-T47SSR-BS8NEG">TRK-T47SSR-BS8NEG (Sarah Wilson)</option>
+                <option value="TRK-T47WBM-LB5FJG">TRK-T47WBM-LB5FJG (Non-existent)</option>
+                <option value="custom">Custom Track ID...</option>
+            </select>
+            <input type="text" id="customTrackId" placeholder="Enter custom track ID" style="display:none;">
+            <br>
+            <button onclick="testTrackId()">🧪 Test Track ID</button>
+            <button onclick="testEnvironment()">🌍 Test Environment</button>
+            <button onclick="testCORS()">🔗 Test CORS</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Environment Information</h3>
+            <div id="envInfo"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Generate Test URLs</h3>
+            <div id="testUrls"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Test Results</h3>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-detect environment and configure API URL
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const isXampp = window.location.pathname.includes('/elitetrack2/');
+        
+        let API_BASE_URL;
+        if (isLocalhost && isXampp) {
+            API_BASE_URL = 'http://localhost/elitetrack2/api';
+        } else {
+            API_BASE_URL = 'https://track.digitalexpertstocknetwork.live/api';
+        }
+
+        // Display environment info
+        function displayEnvironmentInfo() {
+            const envInfo = document.getElementById('envInfo');
+            envInfo.innerHTML = `
+                <div class="info">
+                    <strong>Current Environment:</strong><br>
+                    • Hostname: ${window.location.hostname}<br>
+                    • Pathname: ${window.location.pathname}<br>
+                    • API Base URL: ${API_BASE_URL}<br>
+                    • User Agent: ${navigator.userAgent}<br>
+                    • Local Time: ${new Date().toLocaleString()}
+                </div>
+            `;
+        }
+
+        // Generate test URLs
+        function generateTestUrls() {
+            const testUrls = document.getElementById('testUrls');
+            const trackId = getSelectedTrackId();
+            
+            const currentBase = window.location.origin + window.location.pathname.replace('/track_tester.html', '');
+            
+            testUrls.innerHTML = `
+                <div class="info">
+                    <strong>Test URLs for Track ID: ${trackId}</strong><br>
+                    • Current environment: <a href="${currentBase}/track.html?id=${trackId}" target="_blank">${currentBase}/track.html?id=${trackId}</a><br>
+                    • Localhost XAMPP: <a href="http://localhost/elitetrack2/track.html?id=${trackId}" target="_blank">http://localhost/elitetrack2/track.html?id=${trackId}</a><br>
+                    • Production: <a href="https://transtrack-three.vercel.app/track.html?id=${trackId}" target="_blank">https://transtrack-three.vercel.app/track.html?id=${trackId}</a>
+                </div>
+            `;
+        }
+
+        // Handle track ID selection
+        document.getElementById('trackIdSelect').addEventListener('change', function() {
+            const customInput = document.getElementById('customTrackId');
+            if (this.value === 'custom') {
+                customInput.style.display = 'inline';
+                customInput.focus();
+            } else {
+                customInput.style.display = 'none';
+            }
+            generateTestUrls();
+        });
+
+        function getSelectedTrackId() {
+            const select = document.getElementById('trackIdSelect');
+            if (select.value === 'custom') {
+                return document.getElementById('customTrackId').value || 'CUSTOM-ID';
+            }
+            return select.value;
+        }
+
+        // Add result to results section
+        function addResult(title, content, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            results.innerHTML += `
+                <div class="result ${type}">
+                    <strong>[${timestamp}] ${title}</strong><br>
+                    ${content}
+                </div>
+            `;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        // Test environment
+        function testEnvironment() {
+            addResult('Environment Test', 'Testing basic environment configuration...', 'info');
+            
+            // Test if config.js is loaded (if available)
+            if (typeof window.EliteTrackConfig !== 'undefined') {
+                addResult('Config Loaded', `Elite Track Config detected: ${JSON.stringify(window.EliteTrackConfig)}`, 'success');
+            } else {
+                addResult('Config Missing', 'Elite Track Config not detected. Loading inline config.', 'error');
+            }
+            
+            // Test API info endpoint
+            testApiInfo();
+        }
+
+        // Test API info endpoint
+        async function testApiInfo() {
+            try {
+                addResult('API Info Test', `Testing API info endpoint: ${API_BASE_URL}`, 'info');
+                
+                const response = await fetch(`${API_BASE_URL}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    const data = JSON.parse(responseText);
+                    addResult('API Info Success', `<pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    addResult('API Info Failed', `Status: ${response.status}<br>Response: ${responseText}`, 'error');
+                }
+                
+            } catch (error) {
+                addResult('API Info Error', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test CORS
+        async function testCORS() {
+            addResult('CORS Test', 'Testing CORS configuration...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                
+                const headers = {};
+                for (let [key, value] of response.headers.entries()) {
+                    headers[key] = value;
+                }
+                
+                addResult('CORS Test Result', `<pre>Status: ${response.status}\nHeaders: ${JSON.stringify(headers, null, 2)}</pre>`, 
+                         response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                addResult('CORS Test Error', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test specific track ID
+        async function testTrackId() {
+            const trackId = getSelectedTrackId();
+            
+            if (!trackId || trackId === 'CUSTOM-ID') {
+                addResult('Track ID Test', 'Please select or enter a valid track ID', 'error');
+                return;
+            }
+            
+            addResult('Track ID Test', `Testing track ID: ${trackId}`, 'info');
+            
+            try {
+                const url = `${API_BASE_URL}/users/track/${trackId}`;
+                addResult('Request URL', url, 'info');
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const responseText = await response.text();
+                
+                addResult('Response Headers', `<pre>${JSON.stringify([...response.headers.entries()], null, 2)}</pre>`, 'info');
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        if (data.user) {
+                            addResult('Track ID Success', `<pre>User found: ${JSON.stringify(data.user, null, 2)}</pre>`, 'success');
+                        } else {
+                            addResult('Track ID No User', `<pre>Response: ${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                        }
+                    } catch (parseError) {
+                        addResult('Track ID Parse Error', `Could not parse JSON response: ${responseText}`, 'error');
+                    }
+                } else {
+                    addResult('Track ID Failed', `Status: ${response.status}<br>Response: ${responseText}`, 'error');
+                }
+                
+            } catch (error) {
+                addResult('Track ID Error', `Network/Fetch Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            displayEnvironmentInfo();
+            generateTestUrls();
+            
+            // Auto-run environment test
+            setTimeout(testEnvironment, 500);
+        });
+    </script>
+</body>
+</html>

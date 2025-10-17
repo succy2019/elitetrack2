@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Track - Test URL Generator</title>
+    <script src="config.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 25px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .user-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-processing { background: #cce5ff; color: #0066cc; }
+        .status-active { background: #d4edda; color: #155724; }
+        .status-completed { background: #d4edda; color: #155724; }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 2px;
+        }
+        button:hover { opacity: 0.9; }
+        .copy-btn { background: #28a745; }
+        .test-btn { background: #007bff; }
+        .info { background: #e7f3ff; border: 1px solid #b3d9ff; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        input, select { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        .url-display { 
+            background: #f1f3f4; 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            word-break: break-all; 
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Elite Track - URL Generator & Tester</h1>
+        <p>Generate and test tracking URLs for your users. Use this tool to verify that tracking links work correctly across different browsers.</p>
+        
+        <div class="section">
+            <h3>📊 Available Users in Database</h3>
+            <div id="usersList">Loading users...</div>
+        </div>
+        
+        <div class="section">
+            <h3>🌍 Environment Configuration</h3>
+            <div id="envConfig"></div>
+        </div>
+        
+        <div class="section">
+            <h3>🔗 Generated URLs</h3>
+            <p>Copy these URLs and test them in different browsers or send them to users:</p>
+            <div id="generatedUrls"></div>
+        </div>
+        
+        <div class="section">
+            <h3>🧪 Live Test Results</h3>
+            <button onclick="testAllUrls()">Test All URLs</button>
+            <div id="testResults"></div>
+        </div>
+    </div>
+
+    <script>
+        let users = [];
+        
+        // Load users from API
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/all`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    users = data.users || [];
+                } else {
+                    // If auth fails, try to get users from our test endpoint
+                    console.log('Auth failed, showing sample users');
+                    users = [
+                        {
+                            id: 3,
+                            name: 'Mike Johnson',
+                            email: 'mike.johnson@example.com',
+                            track_id: 'TRK-T47SSR-3ZDWFL',
+                            status: 'pending',
+                            progress_percentage: 55
+                        },
+                        {
+                            id: 4,
+                            name: 'Sarah Wilson',
+                            email: 'sarah.wilson@example.com',
+                            track_id: 'TRK-T47SSR-BS8NEG',
+                            status: 'completed',
+                            progress_percentage: 100
+                        }
+                    ];
+                }
+                
+                displayUsers();
+                displayEnvironment();
+                generateUrls();
+            } catch (error) {
+                document.getElementById('usersList').innerHTML = `
+                    <div class="error">Error loading users: ${error.message}</div>
+                `;
+            }
+        }
+        
+        function displayUsers() {
+            const usersList = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                usersList.innerHTML = '<div class="info">No users found. Create some users in the admin panel first.</div>';
+                return;
+            }
+            
+            usersList.innerHTML = users.map(user => `
+                <div class="user-card">
+                    <div>
+                        <strong>${user.name}</strong><br>
+                        <small>${user.email}</small><br>
+                        <code>${user.track_id}</code>
+                    </div>
+                    <div>
+                        <span class="status-badge status-${user.status}">${user.status}</span><br>
+                        <small>${user.progress_percentage}% complete</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function displayEnvironment() {
+            const envConfig = document.getElementById('envConfig');
+            envConfig.innerHTML = `
+                <div class="info">
+                    <strong>Current Environment:</strong><br>
+                    • API Base URL: <code>${window.EliteTrackConfig.API_BASE_URL}</code><br>
+                    • App Base URL: <code>${window.EliteTrackConfig.APP_BASE_URL}</code><br>
+                    • Environment: <code>${window.EliteTrackConfig.ENVIRONMENT}</code><br>
+                    • Current Location: <code>${window.location.origin}${window.location.pathname}</code>
+                </div>
+            `;
+        }
+        
+        function generateUrls() {
+            const generatedUrls = document.getElementById('generatedUrls');
+            
+            if (users.length === 0) {
+                generatedUrls.innerHTML = '<div class="info">No users available to generate URLs for.</div>';
+                return;
+            }
+            
+            const baseUrls = [
+                { name: 'Current Environment', url: window.location.origin + window.location.pathname.replace('/url_generator.html', '/track.html') },
+                { name: 'Localhost XAMPP', url: 'http://localhost/elitetrack2/track.html' },
+                { name: 'Production Vercel', url: 'https://transtrack-three.vercel.app/track.html' }
+            ];
+            
+            let html = '';
+            
+            users.forEach(user => {
+                html += `<h4>👤 ${user.name} (${user.track_id})</h4>`;
+                
+                baseUrls.forEach(base => {
+                    const fullUrl = `${base.url}?id=${user.track_id}`;
+                    html += `
+                        <div style="margin: 10px 0;">
+                            <strong>${base.name}:</strong><br>
+                            <div class="url-display">${fullUrl}</div>
+                            <button class="copy-btn" onclick="copyToClipboard('${fullUrl}')">📋 Copy</button>
+                            <button class="test-btn" onclick="testUrl('${fullUrl}')">🧪 Test</button>
+                            <button onclick="window.open('${fullUrl}', '_blank')">🔗 Open</button>
+                        </div>
+                    `;
+                });
+                
+                html += '<hr>';
+            });
+            
+            generatedUrls.innerHTML = html;
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('URL copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('URL copied to clipboard!');
+            });
+        }
+        
+        async function testUrl(url) {
+            const testResults = document.getElementById('testResults');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            try {
+                // Extract track ID from URL
+                const trackId = new URL(url).searchParams.get('id');
+                
+                testResults.innerHTML += `
+                    <div class="info">[${timestamp}] Testing: ${url}</div>
+                `;
+                
+                // Test the API endpoint directly
+                const apiUrl = `${window.EliteTrackConfig.API_BASE_URL}/users/track/${trackId}`;
+                const response = await fetch(apiUrl);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.user) {
+                        testResults.innerHTML += `
+                            <div class="success">✅ API Test Passed - User found: ${data.user.name}</div>
+                        `;
+                    } else {
+                        testResults.innerHTML += `
+                            <div class="error">❌ API returned no user data</div>
+                        `;
+                    }
+                } else {
+                    testResults.innerHTML += `
+                        <div class="error">❌ API Test Failed - Status: ${response.status}</div>
+                    `;
+                }
+                
+            } catch (error) {
+                testResults.innerHTML += `
+                    <div class="error">❌ Test Error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        async function testAllUrls() {
+            const testResults = document.getElementById('testResults');
+            testResults.innerHTML = '<div class="info">🧪 Running comprehensive tests...</div>';
+            
+            // Test API connectivity
+            try {
+                const apiResponse = await fetch(`${window.EliteTrackConfig.API_BASE_URL}`);
+                if (apiResponse.ok) {
+                    testResults.innerHTML += '<div class="success">✅ API is accessible</div>';
+                } else {
+                    testResults.innerHTML += '<div class="error">❌ API is not accessible</div>';
+                }
+            } catch (error) {
+                testResults.innerHTML += `<div class="error">❌ API connection failed: ${error.message}</div>`;
+            }
+            
+            // Test each user's track ID
+            for (const user of users) {
+                try {
+                    const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/track/${user.track_id}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        testResults.innerHTML += `<div class="success">✅ ${user.name} (${user.track_id}) - Working</div>`;
+                    } else {
+                        testResults.innerHTML += `<div class="error">❌ ${user.name} (${user.track_id}) - Failed (${response.status})</div>`;
+                    }
+                } catch (error) {
+                    testResults.innerHTML += `<div class="error">❌ ${user.name} (${user.track_id}) - Error: ${error.message}</div>`;
+                }
+                
+                // Add small delay to avoid overwhelming the server
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            testResults.innerHTML += '<div class="info">🏁 All tests completed!</div>';
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers();
+        });
+    </script>
+</body>
+</html>
