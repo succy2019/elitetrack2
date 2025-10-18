@@ -20,8 +20,7 @@ class UserController {
      */
     public function getAllUsers() {
         try {
-            // Verify authentication
-            AuthMiddleware::verifyToken();
+            // Note: This endpoint is now public (no authentication required)
 
             $users = $this->userModel->getAllUsers();
 
@@ -43,8 +42,7 @@ class UserController {
      */
     public function createUser() {
         try {
-            // Verify authentication
-            AuthMiddleware::verifyToken();
+            // Note: This endpoint is now public (no authentication required)
 
             $input = json_decode(file_get_contents('php://input'), true);
             
@@ -133,8 +131,7 @@ class UserController {
      */
     public function updateUser() {
         try {
-            // Verify authentication
-            AuthMiddleware::verifyToken();
+            // Note: This endpoint is now public (no authentication required)
 
             $input = json_decode(file_get_contents('php://input'), true);
             
@@ -208,8 +205,7 @@ class UserController {
      */
     public function updateUserProgress() {
         try {
-            // Verify authentication
-            AuthMiddleware::verifyToken();
+            // Note: This endpoint is now public (no authentication required)
 
             $input = json_decode(file_get_contents('php://input'), true);
             
@@ -258,8 +254,7 @@ class UserController {
      */
     public function deleteUser() {
         try {
-            // Verify authentication
-            AuthMiddleware::verifyToken();
+            // Note: This endpoint is now public (no authentication required)
 
             $input = json_decode(file_get_contents('php://input'), true);
             
@@ -304,8 +299,7 @@ class UserController {
      */
     public function getUserStats() {
         try {
-            // Verify authentication
-            AuthMiddleware::verifyToken();
+            // Note: This endpoint is now public (no authentication required)
 
             $stats = $this->userModel->getUserStats();
 
@@ -327,8 +321,7 @@ class UserController {
      */
     public function searchUsers() {
         try {
-            // Verify authentication
-            AuthMiddleware::verifyToken();
+            // Note: This endpoint is now public (no authentication required)
 
             $criteria = [];
             
@@ -368,8 +361,7 @@ class UserController {
      */
     public function getUserById($id) {
         try {
-            // Verify authentication
-            AuthMiddleware::verifyToken();
+            // Note: This endpoint is now public (no authentication required)
 
             if (empty($id)) {
                 http_response_code(400);

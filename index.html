@@ -72,23 +72,12 @@
             errorMessage.classList.add('hidden');
 
             try {
-                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password }),
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Store the token
-                    localStorage.setItem('token', data.token);
-                    // Redirect to dashboard
+                // Simple credential check - default admin credentials
+                if (email === 'admin@elitetrack.com' && password === 'admin123') {
+                    // Credentials are correct, redirect to dashboard
                     window.location.href = 'dashboard.html';
                 } else {
-                    throw new Error(data.message || 'Login failed');
+                    throw new Error('Invalid email or password');
                 }
             } catch (error) {
                 errorMessage.textContent = error.message;

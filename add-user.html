@@ -22,6 +22,9 @@
                 <a href="#" class="block py-2.5 px-4 bg-blue-900 rounded">
                     <i class="fas fa-user-plus mr-2"></i> Add User
                 </a>
+                <a href="track.html" class="block py-2.5 px-4 hover:bg-blue-700">
+                    <i class="fas fa-search mr-2"></i> Track Status
+                </a>
                 <a href="change-password.html" class="block py-2.5 px-4 hover:bg-blue-700">
                     <i class="fas fa-key mr-2"></i> Change Password
                 </a>
@@ -179,18 +182,8 @@
     </div>
 
     <script>
-        // Check authentication
-        function checkAuth() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'index.html';
-            }
-            return token;
-        }
-
         // Logout function
         document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('token');
             window.location.href = 'index.html';
         });
 
@@ -222,12 +215,10 @@
             };
 
             try {
-                const token = checkAuth();
                 const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/new`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(formData)
                 });
@@ -261,9 +252,6 @@
                 moneyDueField.placeholder = `Leave empty to use: ${this.value}`;
             }
         });
-
-        // Initial auth check
-        checkAuth();
     </script>
 </body>
 </html>
