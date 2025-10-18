@@ -367,36 +367,45 @@
         // Fetch users data
         async function fetchUsers() {
             const token = checkAuth();
-            console.log('Token:', token ? 'Present' : 'Missing');
-            console.log('Fetching users from:', `${window.EliteTrackConfig.API_BASE_URL}/users/all`);
-            console.log('Environment:', window.EliteTrackConfig.ENVIRONMENT);
-            console.log('App Base URL:', window.EliteTrackConfig.APP_BASE_URL);
+            console.log('🔍 DEBUG: Starting fetchUsers...');
+            console.log('🔑 Token exists:', !!token);
+            console.log('🌐 API URL:', `${window.EliteTrackConfig.API_BASE_URL}/users/all`);
             
             try {
+                console.log('📡 Making fetch request...');
                 const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/all`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
                 
-                console.log('Response status:', response.status);
-                console.log('Response ok:', response.ok);
-                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                console.log('📊 Response status:', response.status);
+                console.log('✅ Response ok:', response.ok);
                 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('Response error:', errorText);
-                    throw new Error(`Failed to fetch users: ${response.status} - ${errorText}`);
+                    console.error('❌ API Error:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
 
                 const data = await response.json();
-                console.log('Response data:', data);
-                console.log('Data type:', typeof data);
-                console.log('Data keys:', Object.keys(data));
+                console.log('📦 Raw API response:', data);
+                
+                // Check if response has users
+                if (!data || typeof data !== 'object') {
+                    console.error('❌ Invalid response format - not an object');
+                    throw new Error('Invalid API response format');
+                }
                 
                 const users = data.users || [];
-                console.log('Users array:', users);
-                console.log('Users count:', users.length);
+                console.log('👥 Users found:', users.length);
+                console.log('👥 Users data:', users);
+
+                // CRITICAL: If we get here and users.length is 0, the API is working but no users exist
+                if (users.length === 0) {
+                    console.log('⚠️ API returned empty users array - this means no users exist in the database');
+                    console.log('💡 Try creating a test user first to verify the system works');
+                }
 
                 // Update stats
                 document.getElementById('totalUsers').textContent = users.length;
@@ -406,16 +415,18 @@
                 // Update table
                 const tbody = document.getElementById('usersTableBody');
                 if (users.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>';
+                    console.log('📝 No users found - showing empty message');
+                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-yellow-600 bg-yellow-50"><div class="font-semibold">No Users Found</div><div class="text-sm mt-1">The API is working, but no users exist yet. Try creating a user first.</div></td></tr>';
                 } else {
+                    console.log('📝 Rendering users table...');
                     tbody.innerHTML = users.map(user => `
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">${user.name}</div>
+                                <div class="text-sm font-medium text-gray-900">${user.name || 'N/A'}</div>
                                 <div class="text-xs text-gray-500">${user.track_id || 'N/A'}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-500">${user.email}</div>
+                                <div class="text-sm text-gray-500">${user.email || 'N/A'}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -423,7 +434,7 @@
                                       user.status === 'completed' ? 'bg-blue-100 text-blue-800' :
                                       user.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
                                       'bg-gray-100 text-gray-800'}">
-                                    ${user.status}
+                                    ${user.status || 'unknown'}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -438,7 +449,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${user.money_due || user.amount}
+                                ${user.money_due || user.amount || 'N/A'}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 ${user.track_id ? `
@@ -462,13 +473,19 @@
                             </td>
                         </tr>
                     `).join('');
+                    console.log('✅ Users table rendered successfully');
                 }
 
             } catch (error) {
-                console.error('Error fetching users:', error);
+                console.error('💥 Error in fetchUsers:', error);
                 // Show error message in the table
                 const tbody = document.getElementById('usersTableBody');
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Error loading users: ' + error.message + '</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">
+                    <div class="font-semibold">🚨 Error Loading Users</div>
+                    <div class="text-sm mt-1">${error.message}</div>
+                    <div class="text-xs mt-2 text-gray-400">Check browser console (F12) for detailed logs</div>
+                    <div class="text-xs mt-1 text-blue-600">If you see "No Users Found", try creating a user first</div>
+                </td></tr>`;
             }
         }
 

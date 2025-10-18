@@ -6,12 +6,17 @@
  */
 
 class Database {
-    private $pdo;
     private $host = 'localhost';
-    private $db_name = 'elitetrack';
-    private $username = 'root';
-    private $password = '';
+    private $db_name = 'mspmetrj_track';
+    private $username = 'mspmetrj_track';
+    private $password = 'mspmetrj_track';
     private $db_type = 'mysql';
+    // private $host = 'localhost';
+    // private $db_name = 'elitetrack';
+    // private $username = 'root';
+    // private $password = '';
+    // private $db_type = 'mysql';
+
 
     public function __construct() {
         $this->connect();

@@ -15,19 +15,23 @@ class SimpleDatabase {
         $this->usersFile = $this->dataDir . '/users.json';
         $this->adminsFile = $this->dataDir . '/admins.json';
         
-        // Create data directory if it doesn't exist
+        // Ensure data directory exists and is writable
         if (!is_dir($this->dataDir)) {
             if (!mkdir($this->dataDir, 0755, true)) {
+                error_log("SimpleDatabase: Failed to create data directory: " . $this->dataDir);
                 throw new Exception("Failed to create data directory: " . $this->dataDir);
             }
+            error_log("SimpleDatabase: Created data directory: " . $this->dataDir);
         }
         
         // Check if directory is writable
         if (!is_writable($this->dataDir)) {
+            error_log("SimpleDatabase: Data directory is not writable: " . $this->dataDir);
             throw new Exception("Data directory is not writable: " . $this->dataDir);
         }
         
         $this->initializeData();
+        error_log("SimpleDatabase: Initialized successfully");
     }
 
     private function initializeData() {

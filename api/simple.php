@@ -175,6 +175,95 @@ class SimpleApiRouter {
             'message' => $exception->getMessage()
         ]);
     }
+
+    private function debugStatus() {
+        try {
+            $dataDir = __DIR__ . '/../data';
+            $usersFile = $dataDir . '/users.json';
+            $adminsFile = $dataDir . '/admins.json';
+            
+            $status = [
+                'timestamp' => date('Y-m-d H:i:s'),
+                'api_status' => 'working',
+                'storage_type' => 'file-based',
+                'data_directory' => [
+                    'path' => $dataDir,
+                    'exists' => is_dir($dataDir),
+                    'writable' => is_writable($dataDir),
+                    'absolute_path' => realpath($dataDir) ?: 'N/A'
+                ],
+                'users_file' => [
+                    'path' => $usersFile,
+                    'exists' => file_exists($usersFile),
+                    'readable' => is_readable($usersFile),
+                    'writable' => is_writable($usersFile),
+                    'size' => file_exists($usersFile) ? filesize($usersFile) : 0,
+                    'absolute_path' => realpath($usersFile) ?: 'N/A'
+                ],
+                'admins_file' => [
+                    'path' => $adminsFile,
+                    'exists' => file_exists($adminsFile),
+                    'readable' => is_readable($adminsFile),
+                    'writable' => is_writable($adminsFile),
+                    'absolute_path' => realpath($adminsFile) ?: 'N/A'
+                ],
+                'server_info' => [
+                    'php_version' => phpversion(),
+                    'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
+                    'document_root' => $_SERVER['DOCUMENT_ROOT'] ?? 'unknown',
+                    'script_filename' => $_SERVER['SCRIPT_FILENAME'] ?? 'unknown',
+                    'request_method' => $_SERVER['REQUEST_METHOD'],
+                    'request_uri' => $_SERVER['REQUEST_URI'],
+                    'http_origin' => $_SERVER['HTTP_ORIGIN'] ?? 'none'
+                ],
+                'routing_info' => [
+                    'current_file' => __FILE__,
+                    'api_base_path' => dirname(__FILE__),
+                    'project_root' => dirname(dirname(__FILE__))
+                ]
+            ];
+            
+            // Try to read users count
+            if (file_exists($usersFile) && is_readable($usersFile)) {
+                $data = file_get_contents($usersFile);
+                if ($data !== false) {
+                    $users = json_decode($data, true);
+                    $status['users_count'] = is_array($users) ? count($users) : 0;
+                    $status['users_data_valid'] = is_array($users);
+                    $status['users_sample'] = is_array($users) && count($users) > 0 ? $users[0] : null;
+                    $status['raw_file_content'] = strlen($data) < 500 ? $data : substr($data, 0, 500) . '...';
+                } else {
+                    $status['users_read_error'] = 'Failed to read file content';
+                }
+            } else {
+                $status['users_file_issue'] = 'File does not exist or is not readable';
+            }
+            
+            // Test file creation
+            $testFile = $dataDir . '/test_write.tmp';
+            $status['write_test'] = [
+                'test_file' => $testFile,
+                'can_write' => is_writable($dataDir),
+                'write_success' => file_put_contents($testFile, 'test') !== false
+            ];
+            if (file_exists($testFile)) {
+                unlink($testFile); // Clean up test file
+            }
+            
+            http_response_code(200);
+            echo json_encode($status, JSON_PRETTY_PRINT);
+            
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'api_status' => 'error',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ], JSON_PRETTY_PRINT);
+        }
+    }
 }
 
 // Initialize and run the router
