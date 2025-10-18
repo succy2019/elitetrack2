@@ -17,6 +17,13 @@ class CorsHandler {
             'http://127.0.0.1:3000',
             'http://127.0.0.1:8000',
             'http://localhost',
+            'http://localhost:80',
+            'http://localhost:8080',
+            'http://127.0.0.1',
+            'http://127.0.0.1:80',
+            'http://127.0.0.1:8080',
+            'http://localhost/elitetrack2',  // ✅ Added for XAMPP localhost
+            'http://127.0.0.1/elitetrack2',  // ✅ Added for XAMPP localhost
             
             // Frontend domains (where users visit your app)
             'https://transtrack-three.vercel.app',  // ✅ Your actual Vercel app
