@@ -17,7 +17,14 @@ class SimpleDatabase {
         
         // Create data directory if it doesn't exist
         if (!is_dir($this->dataDir)) {
-            mkdir($this->dataDir, 0755, true);
+            if (!mkdir($this->dataDir, 0755, true)) {
+                throw new Exception("Failed to create data directory: " . $this->dataDir);
+            }
+        }
+        
+        // Check if directory is writable
+        if (!is_writable($this->dataDir)) {
+            throw new Exception("Data directory is not writable: " . $this->dataDir);
         }
         
         $this->initializeData();
@@ -45,12 +52,34 @@ class SimpleDatabase {
     }
 
     public function getUsers() {
+        if (!file_exists($this->usersFile)) {
+            error_log("SimpleDatabase::getUsers - Users file does not exist: " . $this->usersFile);
+            return [];
+        }
+        
         $data = file_get_contents($this->usersFile);
-        return json_decode($data, true) ?: [];
+        if ($data === false) {
+            error_log("SimpleDatabase::getUsers - Failed to read users file: " . $this->usersFile);
+            return [];
+        }
+        
+        $users = json_decode($data, true);
+        if ($users === null) {
+            error_log("SimpleDatabase::getUsers - Failed to decode JSON from users file: " . $this->usersFile);
+            error_log("SimpleDatabase::getUsers - JSON error: " . json_last_error_msg());
+            return [];
+        }
+        
+        error_log("SimpleDatabase::getUsers - Successfully loaded " . count($users) . " users");
+        return $users;
     }
 
     public function saveUsers($users) {
-        return file_put_contents($this->usersFile, json_encode($users, JSON_PRETTY_PRINT));
+        $result = file_put_contents($this->usersFile, json_encode($users, JSON_PRETTY_PRINT));
+        if ($result === false) {
+            throw new Exception("Failed to write users file: " . $this->usersFile);
+        }
+        return $result;
     }
 
     public function getAdmins() {

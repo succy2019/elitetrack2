@@ -369,6 +369,8 @@
             const token = checkAuth();
             console.log('Token:', token ? 'Present' : 'Missing');
             console.log('Fetching users from:', `${window.EliteTrackConfig.API_BASE_URL}/users/all`);
+            console.log('Environment:', window.EliteTrackConfig.ENVIRONMENT);
+            console.log('App Base URL:', window.EliteTrackConfig.APP_BASE_URL);
             
             try {
                 const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/all`, {
@@ -379,6 +381,7 @@
                 
                 console.log('Response status:', response.status);
                 console.log('Response ok:', response.ok);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
                 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -388,8 +391,12 @@
 
                 const data = await response.json();
                 console.log('Response data:', data);
+                console.log('Data type:', typeof data);
+                console.log('Data keys:', Object.keys(data));
+                
                 const users = data.users || [];
                 console.log('Users array:', users);
+                console.log('Users count:', users.length);
 
                 // Update stats
                 document.getElementById('totalUsers').textContent = users.length;

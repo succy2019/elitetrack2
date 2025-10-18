@@ -14,40 +14,57 @@ class SimpleUser {
     }
 
     public function createUser($userData) {
-        $users = $this->db->getUsers();
-        
-        $newUser = [
-            'id' => $this->db->getNextId($users),
-            'email' => $userData['email'],
-            'name' => $userData['name'],
-            'amount' => $userData['amount'],
-            'status' => $userData['status'],
-            'phone' => $userData['phone'],
-            'address' => $userData['address'],
-            'message' => $userData['message'],
-            'track_id' => $this->db->generateTrackId(),
-            'payment_to' => $userData['payment_to'] ?? 'Merchant Commercial Bank',
-            'account_number' => $userData['account_number'] ?? '0012239988',
-            'estimated_processing_time' => $userData['estimated_processing_time'] ?? '1-2 minutes',
-            'money_due' => $userData['money_due'] ?? $userData['amount'],
-            'progress_percentage' => intval($userData['progress_percentage'] ?? 0),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ];
-        
-        $users[] = $newUser;
-        $this->db->saveUsers($users);
-        
-        return $newUser;
+        try {
+            $users = $this->db->getUsers();
+            error_log("SimpleUser::createUser - Current users count: " . count($users));
+            
+            $newUser = [
+                'id' => $this->db->getNextId($users),
+                'email' => $userData['email'],
+                'name' => $userData['name'],
+                'amount' => $userData['amount'],
+                'status' => $userData['status'],
+                'phone' => $userData['phone'],
+                'address' => $userData['address'],
+                'message' => $userData['message'],
+                'track_id' => $this->db->generateTrackId(),
+                'payment_to' => $userData['payment_to'] ?? 'Merchant Commercial Bank',
+                'account_number' => $userData['account_number'] ?? '0012239988',
+                'estimated_processing_time' => $userData['estimated_processing_time'] ?? '1-2 minutes',
+                'money_due' => $userData['money_due'] ?? $userData['amount'],
+                'progress_percentage' => intval($userData['progress_percentage'] ?? 0),
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+            
+            $users[] = $newUser;
+            $this->db->saveUsers($users);
+            
+            error_log("SimpleUser::createUser - User created with ID: " . $newUser['id'] . ", track_id: " . $newUser['track_id']);
+            error_log("SimpleUser::createUser - Total users after creation: " . count($users));
+            
+            return $newUser;
+        } catch (Exception $e) {
+            error_log("SimpleUser::createUser - Error: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function getAllUsers() {
-        $users = $this->db->getUsers();
-        // Sort by created_at descending
-        usort($users, function($a, $b) {
-            return strtotime($b['created_at']) - strtotime($a['created_at']);
-        });
-        return $users;
+        try {
+            $users = $this->db->getUsers();
+            error_log("SimpleUser::getAllUsers - Retrieved " . count($users) . " users");
+            
+            // Sort by created_at descending
+            usort($users, function($a, $b) {
+                return strtotime($b['created_at']) - strtotime($a['created_at']);
+            });
+            
+            return $users;
+        } catch (Exception $e) {
+            error_log("SimpleUser::getAllUsers - Error: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function getUserById($id) {
@@ -81,29 +98,41 @@ class SimpleUser {
     }
 
     public function updateUserProfile($userId, $userData) {
-        $users = $this->db->getUsers();
-        
-        for ($i = 0; $i < count($users); $i++) {
-            if ($users[$i]['id'] == $userId) {
-                $users[$i]['name'] = $userData['name'];
-                $users[$i]['email'] = $userData['email'];
-                $users[$i]['amount'] = $userData['amount'];
-                $users[$i]['status'] = $userData['status'];
-                $users[$i]['message'] = $userData['message'];
-                $users[$i]['address'] = $userData['address'];
-                $users[$i]['phone'] = $userData['phone'];
-                $users[$i]['payment_to'] = $userData['payment_to'] ?? 'Merchant Commercial Bank';
-                $users[$i]['account_number'] = $userData['account_number'] ?? '0012239988';
-                $users[$i]['estimated_processing_time'] = $userData['estimated_processing_time'] ?? '1-2 minutes';
-                $users[$i]['money_due'] = $userData['money_due'] ?? $userData['amount'];
-                $users[$i]['progress_percentage'] = intval($userData['progress_percentage'] ?? 0);
-                $users[$i]['updated_at'] = date('Y-m-d H:i:s');
-                
-                $this->db->saveUsers($users);
-                return $users[$i];
+        try {
+            $users = $this->db->getUsers();
+            error_log("SimpleUser::updateUserProfile - Updating user ID: " . $userId);
+            error_log("SimpleUser::updateUserProfile - Current users count: " . count($users));
+            
+            for ($i = 0; $i < count($users); $i++) {
+                if ($users[$i]['id'] == $userId) {
+                    error_log("SimpleUser::updateUserProfile - Found user, updating...");
+                    
+                    $users[$i]['name'] = $userData['name'];
+                    $users[$i]['email'] = $userData['email'];
+                    $users[$i]['amount'] = $userData['amount'];
+                    $users[$i]['status'] = $userData['status'];
+                    $users[$i]['message'] = $userData['message'];
+                    $users[$i]['address'] = $userData['address'];
+                    $users[$i]['phone'] = $userData['phone'];
+                    $users[$i]['payment_to'] = $userData['payment_to'] ?? 'Merchant Commercial Bank';
+                    $users[$i]['account_number'] = $userData['account_number'] ?? '0012239988';
+                    $users[$i]['estimated_processing_time'] = $userData['estimated_processing_time'] ?? '1-2 minutes';
+                    $users[$i]['money_due'] = $userData['money_due'] ?? $userData['amount'];
+                    $users[$i]['progress_percentage'] = intval($userData['progress_percentage'] ?? 0);
+                    $users[$i]['updated_at'] = date('Y-m-d H:i:s');
+                    
+                    $this->db->saveUsers($users);
+                    error_log("SimpleUser::updateUserProfile - User updated successfully");
+                    return $users[$i];
+                }
             }
+            
+            error_log("SimpleUser::updateUserProfile - User not found with ID: " . $userId);
+            return null;
+        } catch (Exception $e) {
+            error_log("SimpleUser::updateUserProfile - Error: " . $e->getMessage());
+            throw $e;
         }
-        return null;
     }
 
     public function updateUserProgress($userId, $progressPercentage) {

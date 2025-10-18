@@ -27,6 +27,7 @@ class CorsHandler {
             
             // Frontend domains (where users visit your app)
             'https://transtrack-three.vercel.app',  // ✅ Your actual Vercel app
+            'https://track.digitalexpertstocknetwork.live',  // ✅ Added production backend domain
             'https://your-custom-domain.com',       // 🔥 UPDATE: Custom domain if you have one
             
             // Add other preview deployments if needed
