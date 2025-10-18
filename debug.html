@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Dashboard</title>
+    <script src="config.js"></script>
+</head>
+<body>
+    <h1>Debug Dashboard</h1>
+    <div id="result"></div>
+    <div id="users-list"></div>
+    
+    <script>
+        console.log('Starting debug...');
+        
+        async function testAPI() {
+            try {
+                console.log('Testing API...');
+                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/all`);
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                document.getElementById('result').innerHTML = `
+                    <p>API Status: ${response.status}</p>
+                    <p>Users Count: ${data.users ? data.users.length : 'No users property'}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                if (data.users) {
+                    const usersList = document.getElementById('users-list');
+                    usersList.innerHTML = data.users.map(user => `
+                        <div>ID: ${user.id}, Name: ${user.name}, Email: ${user.email}</div>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `Error: ${error.message}`;
+            }
+        }
+        
+        testAPI();
+    </script>
+</body>
+</html>
