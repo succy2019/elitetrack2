@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug Tool</title>
+    <script src="config.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { border: 1px solid #ccc; margin: 20px 0; padding: 15px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>API Debug Tool</h1>
+    
+    <div class="test-section">
+        <h2>Environment Detection</h2>
+        <div id="env-info"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>API Tests</h2>
+        <button onclick="testGetUsers()">Test Get Users</button>
+        <button onclick="testCreateUser()">Test Create User</button>
+        <button onclick="testCORS()">Test CORS Preflight</button>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        // Display environment info
+        function displayEnvInfo() {
+            const envInfo = document.getElementById('env-info');
+            envInfo.innerHTML = `
+                <p><strong>Current URL:</strong> ${window.location.href}</p>
+                <p><strong>Hostname:</strong> ${window.location.hostname}</p>
+                <p><strong>Environment:</strong> ${window.EliteTrackConfig.ENVIRONMENT}</p>
+                <p><strong>API Base URL:</strong> ${window.EliteTrackConfig.API_BASE_URL}</p>
+                <p><strong>App Base URL:</strong> ${window.EliteTrackConfig.APP_BASE_URL}</p>
+                <p><strong>Is Localhost:</strong> ${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'}</p>
+                <p><strong>Is XAMPP:</strong> ${window.location.pathname.includes('/elitetrack2/')}</p>
+                <p><strong>Is Vercel:</strong> ${window.location.hostname.includes('.vercel.app')}</p>
+            `;
+        }
+
+        // Test getting users
+        async function testGetUsers() {
+            const results = document.getElementById('test-results');
+            results.innerHTML += '<h3>Testing Get Users...</h3>';
+            
+            try {
+                const apiUrl = `${window.EliteTrackConfig.API_BASE_URL}/users/all`;
+                results.innerHTML += `<p class="info">Requesting: ${apiUrl}</p>`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                results.innerHTML += `<p class="info">Response Status: ${response.status}</p>`;
+                results.innerHTML += `<p class="info">Response OK: ${response.ok}</p>`;
+                
+                const data = await response.json();
+                results.innerHTML += `<p class="success">✅ GET Users Success!</p>`;
+                results.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+            } catch (error) {
+                results.innerHTML += `<p class="error">❌ GET Users Failed: ${error.message}</p>`;
+                results.innerHTML += `<p class="error">Error Type: ${error.name}</p>`;
+                console.error('Full error:', error);
+            }
+        }
+
+        // Test creating a user
+        async function testCreateUser() {
+            const results = document.getElementById('test-results');
+            results.innerHTML += '<h3>Testing Create User...</h3>';
+            
+            const testUser = {
+                name: 'Test User ' + Date.now(),
+                email: 'test' + Date.now() + '@example.com',
+                amount: '100',
+                status: 'pending',
+                phone: '1234567890',
+                address: 'Test Address',
+                message: 'Test Message'
+            };
+            
+            try {
+                const apiUrl = `${window.EliteTrackConfig.API_BASE_URL}/users/new`;
+                results.innerHTML += `<p class="info">Requesting: ${apiUrl}</p>`;
+                results.innerHTML += `<p class="info">Data: ${JSON.stringify(testUser)}</p>`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testUser)
+                });
+                
+                results.innerHTML += `<p class="info">Response Status: ${response.status}</p>`;
+                results.innerHTML += `<p class="info">Response OK: ${response.ok}</p>`;
+                
+                const data = await response.json();
+                results.innerHTML += `<p class="success">✅ CREATE User Success!</p>`;
+                results.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+            } catch (error) {
+                results.innerHTML += `<p class="error">❌ CREATE User Failed: ${error.message}</p>`;
+                results.innerHTML += `<p class="error">Error Type: ${error.name}</p>`;
+                console.error('Full error:', error);
+            }
+        }
+
+        // Test CORS preflight
+        async function testCORS() {
+            const results = document.getElementById('test-results');
+            results.innerHTML += '<h3>Testing CORS Preflight...</h3>';
+            
+            try {
+                const apiUrl = `${window.EliteTrackConfig.API_BASE_URL}/users/new`;
+                results.innerHTML += `<p class="info">Testing CORS for: ${apiUrl}</p>`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Request-Method': 'POST'
+                    }
+                });
+                
+                results.innerHTML += `<p class="info">CORS Response Status: ${response.status}</p>`;
+                results.innerHTML += `<p class="info">CORS Response OK: ${response.ok}</p>`;
+                
+                // Check response headers
+                const corsHeaders = {};
+                for (const [key, value] of response.headers.entries()) {
+                    if (key.toLowerCase().includes('access-control')) {
+                        corsHeaders[key] = value;
+                    }
+                }
+                
+                results.innerHTML += `<p class="success">✅ CORS Test Complete!</p>`;
+                results.innerHTML += `<p class="info">CORS Headers:</p>`;
+                results.innerHTML += `<pre>${JSON.stringify(corsHeaders, null, 2)}</pre>`;
+                
+            } catch (error) {
+                results.innerHTML += `<p class="error">❌ CORS Test Failed: ${error.message}</p>`;
+                results.innerHTML += `<p class="error">Error Type: ${error.name}</p>`;
+                console.error('Full error:', error);
+            }
+        }
+
+        // Initialize
+        displayEnvInfo();
+    </script>
+</body>
+</html>

@@ -31,21 +31,36 @@ class CorsHandler {
             'https://your-custom-domain.com',       // 🔥 UPDATE: Custom domain if you have one
             
             // Add other preview deployments if needed
-            //'https://transtrack-git-main-succy2019.vercel.app', // Git branch URL pattern
+            'https://transtrack-git-main-succy2019.vercel.app', // Git branch URL pattern
+            
+            // Add wildcard support for Vercel preview deployments
+            // Note: You'll need to add specific preview URLs as needed
         ];
 
         $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
         
+        // Log the origin for debugging
+        error_log("CORS Origin Request: " . $origin);
+        
         if (in_array($origin, $allowedOrigins)) {
             header("Access-Control-Allow-Origin: " . $origin);
+            error_log("CORS: Allowed specific origin - " . $origin);
         } else {
-            header("Access-Control-Allow-Origin: *"); // For development only
+            // Check if it's a Vercel preview deployment
+            if (strpos($origin, 'vercel.app') !== false || strpos($origin, 'netlify.app') !== false) {
+                header("Access-Control-Allow-Origin: " . $origin);
+                error_log("CORS: Allowed deployment platform - " . $origin);
+            } else {
+                header("Access-Control-Allow-Origin: *"); // For development only
+                error_log("CORS: Using wildcard for - " . $origin);
+            }
         }
 
         header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Cache-Control");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma, Expires, X-Request-ID");
         header("Access-Control-Allow-Credentials: true");
         header("Access-Control-Max-Age: 86400"); // Cache preflight for 24 hours
+        header("Access-Control-Expose-Headers: Content-Type, Cache-Control, Pragma, Expires");
     }
 
     /**

@@ -7,6 +7,8 @@
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const isXampp = window.location.pathname.includes('/elitetrack2/');
 const isVercel = window.location.hostname.includes('.vercel.app');
+const isNetlify = window.location.hostname.includes('.netlify.app');
+const isProductionDomain = window.location.hostname === 'track.digitalexpertstocknetwork.live';
 
 // Environment configuration
 const CONFIG = {
@@ -32,6 +34,10 @@ if (isLocalhost && isXampp) {
 } else {
     CURRENT_CONFIG = CONFIG.production;
 }
+
+// Override for development testing - if you want to test production API from localhost
+// Uncomment the line below to force production API:
+// CURRENT_CONFIG = CONFIG.production;
 
 // Export configuration
 window.EliteTrackConfig = CURRENT_CONFIG;

@@ -163,7 +163,10 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="flex items-center justify-end">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                <span id="envInfo"></span>
+                            </div>
                             <button type="submit"
                                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                 <span id="buttonText">Add User</span>
@@ -244,25 +247,49 @@
             };
 
             try {
+                // Debug logging
+                console.log('🚀 Starting user creation...');
+                console.log('📊 Form data:', formData);
+                console.log('🌐 API URL:', window.EliteTrackConfig.API_BASE_URL + '/users/new');
+                console.log('🔧 Environment:', window.EliteTrackConfig.ENVIRONMENT);
+                
+                const apiUrl = window.EliteTrackConfig.API_BASE_URL + '/users/new';
+                
                 // Add cache-busting and improved headers
                 const timestamp = new Date().getTime();
                 const randomId = Math.random().toString(36).substring(7);
                 
-                const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/new`, {
+                const requestOptions = {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Cache-Control': 'no-cache, no-store, must-revalidate',
                         'Pragma': 'no-cache',
-                        'X-Request-ID': `${timestamp}-${randomId}`
+                        'X-Request-ID': timestamp + '-' + randomId
                     },
-                    cache: 'no-store',
                     body: JSON.stringify(formData)
-                });
+                };
+                
+                console.log('📡 Request options:', requestOptions);
+                
+                const response = await fetch(apiUrl, requestOptions);
+                
+                console.log('📊 Response status:', response.status);
+                console.log('✅ Response ok:', response.ok);
+                console.log('📋 Response headers:', [...response.headers.entries()]);
 
-                const data = await response.json();
+                let data;
+                try {
+                    const responseText = await response.text();
+                    console.log('📄 Raw response:', responseText);
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('❌ JSON parse error:', parseError);
+                    throw new Error('Invalid response format from server');
+                }
 
                 if (response.ok) {
+                    console.log('✅ User created successfully:', data);
                     // Show success notification
                     showNotification('User created successfully!', 'success');
                     
@@ -271,11 +298,30 @@
                         window.location.href = 'dashboard.html';
                     }, 1500);
                 } else {
-                    throw new Error(data.error || data.message || 'Failed to create user');
+                    const errorMsg = data.error || data.message || 'Failed to create user';
+                    console.error('❌ API error:', errorMsg);
+                    throw new Error(errorMsg);
                 }
             } catch (error) {
-                console.error('Error creating user:', error);
-                showNotification('Error creating user: ' + error.message, 'error');
+                console.error('💥 Error creating user:', error);
+                console.error('🔍 Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                let errorMessage = error.message;
+                
+                // Provide more specific error messages
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage = 'Network error: Cannot connect to server. Check if the API is running.';
+                } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    errorMessage = 'CORS error: The server is not allowing requests from this domain.';
+                } else if (error.message.includes('JSON')) {
+                    errorMessage = 'Server response error: Invalid data format received.';
+                }
+                
+                showNotification('Error creating user: ' + errorMessage, 'error');
             } finally {
                 // Reset button state
                 buttonText.classList.remove('hidden');
@@ -295,6 +341,15 @@
                 moneyDueField.placeholder = `Leave empty to use: ${this.value}`;
             }
         });
+
+        // Show environment info for debugging
+        function showEnvironmentInfo() {
+            const envInfo = document.getElementById('envInfo');
+            envInfo.innerHTML = `API: ${window.EliteTrackConfig.ENVIRONMENT} | ${window.EliteTrackConfig.API_BASE_URL}`;
+        }
+
+        // Initialize environment info
+        showEnvironmentInfo();
     </script>
 </body>
 </html>
