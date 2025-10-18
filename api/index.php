@@ -26,6 +26,7 @@ class ApiRouter {
         CorsHandler::setCorsHeaders();
         CorsHandler::setSecurityHeaders();
         CorsHandler::setJsonHeader();
+        CorsHandler::setCacheControlHeaders();
 
         $method = $_SERVER['REQUEST_METHOD'];
         $path = $this->getPath();

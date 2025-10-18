@@ -76,6 +76,17 @@ class CorsHandler {
     public static function setJsonHeader() {
         header("Content-Type: application/json; charset=UTF-8");
     }
+
+    /**
+     * Set cache control headers to prevent caching of API responses
+     */
+    public static function setCacheControlHeaders() {
+        header("Cache-Control: no-cache, no-store, must-revalidate, max-age=0");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+        header("ETag: " . md5(microtime() . rand()));
+    }
 }
 
 ?>

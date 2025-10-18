@@ -182,6 +182,35 @@
     </div>
 
     <script>
+        // Show notification message
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : 
+                           type === 'error' ? 'bg-red-500' : 
+                           type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500';
+            
+            const icon = type === 'success' ? 'fas fa-check-circle' : 
+                        type === 'error' ? 'fas fa-exclamation-circle' : 
+                        type === 'warning' ? 'fas fa-exclamation-triangle' : 'fas fa-info-circle';
+            
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300`;
+            notification.innerHTML = `<i class="${icon} mr-2"></i>${message}`;
+            
+            document.body.appendChild(notification);
+            
+            // Animation entrance
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 10);
+            
+            // Auto remove after 3-5 seconds
+            const timeout = type === 'error' ? 5000 : 3000;
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, timeout);
+        }
+
         // Logout function
         document.getElementById('logoutBtn').addEventListener('click', () => {
             window.location.href = 'index.html';
@@ -215,24 +244,38 @@
             };
 
             try {
+                // Add cache-busting and improved headers
+                const timestamp = new Date().getTime();
+                const randomId = Math.random().toString(36).substring(7);
+                
                 const response = await fetch(`${window.EliteTrackConfig.API_BASE_URL}/users/new`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'X-Request-ID': `${timestamp}-${randomId}`
                     },
+                    cache: 'no-store',
                     body: JSON.stringify(formData)
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert('User created successfully!');
-                    window.location.href = 'dashboard.html';
+                    // Show success notification
+                    showNotification('User created successfully!', 'success');
+                    
+                    // Wait a moment for the notification to show, then redirect
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
                 } else {
-                    throw new Error(data.message || 'Failed to create user');
+                    throw new Error(data.error || data.message || 'Failed to create user');
                 }
             } catch (error) {
-                alert(error.message);
+                console.error('Error creating user:', error);
+                showNotification('Error creating user: ' + error.message, 'error');
             } finally {
                 // Reset button state
                 buttonText.classList.remove('hidden');
