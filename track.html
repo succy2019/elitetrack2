@@ -1,451 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang='en'>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Tracking</title>
-  <script src="config.js"></script>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      background-attachment: fixed;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image:
-        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background:
-        linear-gradient(90deg, transparent 79px, rgba(255, 255, 255, 0.03) 81px, rgba(255, 255, 255, 0.03) 82px, transparent 84px),
-        linear-gradient(rgba(255, 255, 255, 0.03) 0px, transparent 1px),
-        linear-gradient(rgba(0, 0, 0, 0.1) 0px, transparent 1px);
-      background-size: 80px 80px, 80px 80px, 80px 80px;
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    .card-container {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      color: #2d3748;
-      width: 100%;
-      max-width: 450px;
-      border-radius: 20px;
-      box-shadow:
-        0 20px 40px rgba(0, 0, 0, 0.1),
-        0 10px 20px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-      padding: 30px;
-      text-align: left;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-      background-size: 200% 100%;
-      animation: gradientShift 3s ease-in-out infinite;
-    }
-
-    @keyframes gradientShift {
-
-      0%,
-      100% {
-        background-position: 0% 50%;
-      }
-
-      50% {
-        background-position: 100% 50%;
-      }
-    }
-
-    .card-header {
-      font-weight: 700;
-      font-size: 16px;
-      margin-bottom: 20px;
-      margin-top: 10px;
-      color: #4a5568;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 15px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .card-header .status-indicators {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .info-box {
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: #2d3748;
-      border-radius: 16px;
-      padding: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    }
-
-    .info-box h3 {
-      font-size: 18px;
-      margin-bottom: 12px;
-      color: #2d3748;
-      font-weight: 600;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .info-box p {
-      margin: 5px 0;
-      font-size: 13px;
-      color: #333;
-    }
-
-    .progress-bar {
-      width: 100%;
-      background: linear-gradient(90deg, #f7fafc, #e2e8f0);
-      border-radius: 10px;
-      height: 16px;
-      margin: 20px 0;
-      overflow: hidden;
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      border-radius: 9px;
-      transition: width 0.5s ease, background 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 11px;
-      font-weight: 600;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .progress-fill::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes shimmer {
-      0% {
-        left: -100%;
-      }
-
-      100% {
-        left: 100%;
-      }
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 12px;
-      color: #718096;
-      opacity: 0.8;
-      line-height: 1.5;
-      padding-top: 15px;
-      border-top: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 15px;
-      gap: 10px;
-    }
-
-    .btn {
-      border: none;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 14px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .btn:hover::before {
-      left: 100%;
-    }
-
-    .btn.download {
-      background: linear-gradient(135deg, #f7fafc, #edf2f7);
-      color: #667eea;
-      border: 1px solid rgba(102, 126, 234, 0.2);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-    }
-
-    .btn.download:hover {
-      background: linear-gradient(135deg, #edf2f7, #e2e8f0);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
-    }
-
-    .btn.proceed {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn.proceed:hover {
-      background: linear-gradient(135deg, #5a67d8, #6b46c1);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .note {
-      font-size: 12px;
-      color: #444;
-      margin-top: 8px;
-    }
-
-    .loading {
-      text-align: center;
-      color: #666;
-      font-style: italic;
-      padding: 20px;
-      position: relative;
-    }
-
-    .loading::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 20px;
-      height: 20px;
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #007cbf;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-top: -10px;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-      }
-
-      100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-      }
-    }
-
-    /* Skeleton loading animation for smoother experience */
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-      border-radius: 4px;
-    }
-
-    @keyframes loading {
-      0% {
-        background-position: 200% 0;
-      }
-
-      100% {
-        background-position: -200% 0;
-      }
-    }
-
-    .error {
-      text-align: center;
-      color: #dc2626;
-      padding: 20px;
-    }
-
-    .error h3 {
-      color: #dc2626;
-      margin-bottom: 10px;
-    }
-
-    .user-details {
-      background: linear-gradient(135deg, #f7fafc, #edf2f7);
-      padding: 15px;
-      border-radius: 12px;
-      margin: 15px 0;
-      font-size: 13px;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .status-indicator {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-
-    .status-pending {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .status-processing {
-      background: #dbeafe;
-      color: #1e40af;
-    }
-
-    .status-active {
-      background: #d1fae5;
-      color: #065f46;
-    }
-
-    .status-completed {
-      background: #d1fae5;
-      color: #065f46;
-    }
-
-    .status-failed {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
-
-      .card-container {
-        padding: 20px;
-        max-width: calc(100vw - 20px);
-        border-radius: 16px;
-      }
-
-      .card-header {
-        font-size: 14px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-
-      .status-indicators {
-        align-self: flex-end;
-      }
-
-      .info-box {
-        padding: 15px;
-      }
-
-      .info-box h3 {
-        font-size: 16px;
-      }
-
-      .buttons {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    /* Enhanced visual effects */
-    @media (prefers-reduced-motion: no-preference) {
-      .card-container {
-        animation: fadeInUp 0.6s ease-out;
-      }
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .track-id {
-      font-family: 'Courier New', monospace;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
-    }
-  </style>
+    <link rel='stylesheet' href='admin-style.css'>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Transaction Details</title>
+    <link rel='stylesheet' type='text/css' href='https://app.skyexpressglobal.com/wiretraff.click/style.css'>
+    <link rel='stylesheet' type='text/css' href='https://app.skyexpressglobal.com/style.css'>
+    <link rel='stylesheet' type='text/css' href='page.css'>
+    <script src="config.js"></script>
   <!-- Smartsupp Live Chat script -->
 <script type="text/javascript">
 var _smartsupp = _smartsupp || {};
@@ -460,74 +23,113 @@ window.smartsupp||(function(d) {
 <noscript> Powered by <a href=“https://www.smartsupp.com” target=“_blank”>Smartsupp</a></noscript>
 
 </head>
-
 <body>
+<div class='dashboard'>
+    
+<div class='content'>
+<div class='top'>
+<div class='h3ad'>
+<div class='logo'><img height='50' src='assets/img/logo-white.png'></div>
+<div class='ri'>
+<a class='msg' href=''></a>
+<div><img class='flag' src='flagcdn.com/w320/ch.png' alt=''></div>
+</div>
+</div>
+<br>                                                       
+<div class='l1'>Hey,&ensp;<div class='recipient' id='recipientName'>Loading...</div></div>
+<div class='l2'> <div class='r1'><div class='sender' style='color: #FFD000 !important;' id='senderName'>Loading...</div>&ensp;Is sending you</div>
+<span id='amount'>Loading...</span></div> 
 
-  <div class="card-container">
-    <div class="card-header">
-      <span>Elite Management Tracking</span>
-      <div class="status-indicators">
-        <span id="connectionStatus" title="Connection Status">🟢</span>
-        <span id="progressPercent">0%</span>
-      </div>
-    </div>
 
-    <div class="info-box">
-      <!-- Loading State -->
-      <div id="loading" class="loading">
-        <p>Loading payment information...</p>
-      </div>
+</div> 
+<div class='nextl' style='margin-top:20px;'> 
+<div class='m1'>
+<div class='le'>
+<div class='dot'></div>
+<div id='transferInfo'>Loading transfer information...</div>
+</div>
+<div class='ri'><div class='btnn' id='datetime'>Loading...</div></div>
+</div>
 
-      <!-- User Content -->
-      <div id="userContent" style="display: none;">
-        <h3 id="paymentTo">Payment to: Loading...</h3>
-        <p id="accountInfo">Acct: Loading... • Reference: <span class="track-id" id="trackId">Loading...</span></p>
+<div class='tp'>
+<div class='le'>Transaction Progress</div>
+<div class='ri' id='progress-text'>0%</div>
+</div>
 
-        <div class="user-details">
-          <strong id="userName">Loading...</strong><br>
-          <span id="userEmail">Loading...</span><br>
-          <span id="userPhone">Loading...</span>
-        </div>
+<div class='pcontainer'>
+<div class='pin' id='progress-bar' style='width: 0%; transition: width 2s ease-in-out;'></div> 
+</div>
 
-        <h4 style="margin-top:15px; color:#b13c3c;">
-          Transaction Status: <span class="status-indicator" id="statusBadge">Loading</span>
-        </h4>
+<div class='message' id='loadingMessage'>
+<div class='heading'>
+<div class='le'>
+<div class='dot blue'></div>
+<div class='txt'>
+<div class='txt1'>Loading Transaction Details</div>   
+</div>
+</div>
+<div class='ri'>
+<div class='btnn blue'>Loading</div></div>
+</div>
+<div class='txt2'>Please wait while we fetch your transaction information...</div>
+</div>
 
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill">0%</div>
-        </div>
+<div class='message' id='feeMessage' style='display: none;'>
+<div class='heading'>
+<div class='le'>
+<div class='dot gold'></div>
+<div class='txt'>
+<div class='txt1'>Transaction Fees</div>   
+</div>
+</div>
+<div class='ri'>
+<div class='btnn' id='feeStatus'>Processing</div></div>
+</div>
+<div class='txt2' id='feeText'>Loading fee information...</div>
+</div>
 
-        <p class="note" id="processingTime">Estimated processing time: Loading...</p>
-        <p class="note" id="userMessage">Loading message...</p>
-        <p><strong>Money due:</strong> <span id="moneyDue">Loading...</span></p>
+<div class='message' id='statusMessage' style='display: none;'>
+<div class='heading'>
+<div class='le'>
+<div class='dot' id='statusDot'></div>
+<div class='txt'>
+<div class='txt1' id='statusTitle'>Status Update</div>
+</div>
+</div>
+<div class='ri'>
+<div class='btnn' id='statusBadgeNew'>Processing</div></div>
+</div>
+<div class='txt2' id='statusText'>Loading status information...</div>
+</div>
 
-        <div class="buttons">
-          <button class="btn download" onclick="downloadReceipt()">Download</button>
-          <button class="btn proceed" onclick="proceedToPay()">Proceed to Pay</button>
-        </div>
-      </div>
+<div class='message' id='errorMessage' style='display: none;'>
+<div class='heading'>
+<div class='le'>
+<div class='dot red'></div>
+<div class='txt'>
+<div class='txt1'>Error</div>
+</div>
+</div>
+<div class='ri'>
+<div class='btnn red'>Failed</div></div>
+</div>
+<div class='txt2' id='errorText'>Unable to load tracking information.</div>
+</div>
 
-      <!-- Error State -->
-      <div id="errorContent" class="error" style="display: none;">
-        <h3>Tracking Information Not Found</h3>
-        <p id="errorMessage">Unable to load tracking information.</p>
-        <p>Please check your tracking link and try again.</p>
-        <div style="margin-top: 15px;">
-          <button class="btn proceed" onclick="retryLoading()" id="retryBtn">
-            <span id="retryText">Retry</span>
-          </button>
-          <!-- <button class="btn" onclick="testAPI()" id="testApiBtn" style="background: #4CAF50; margin-left: 10px;">
-            Test API
-          </button> -->
-        </div>
-      </div>
-    </div>
+</div> 
+<div style='margin-top: 1.5rem;'>
+<img src='visa.svg'>
+</div>
+<div class='fo'>
+TransferGo is an authorised electronic money institution (EMI) authorized by the Financial Conduct Authority (FCA) under the Electronic Money regulations 2011 (EMRs) and the Payment Services Regulations 2017 (PSRs) (Firm registration number: 991295) to issue electronic money and providing payment services. Our registered office is 1a Old Street Yard, White Collar Factory, EC1Y 8AF, London, United Kingdom. <br>
+<br>TransferGo Lithuania UAB is an electronic money institution established in the Republic of Lithuania, authorised and regulated by the Bank of Lithuania. Registered address: Palangos str. 4, Vilnius, Lithuania, number of registration 304871705, FI Code 32400. Our registered office is 1a Old Street Yard, White Collar Factory, EC1Y 8AF, London, United Kingdom.<br>
+<br>
+Copyright 2025 TransferGo Ltd
+</div>
 
-    <div class="footer">
-      © 2025 Elite Management Ltd — Payments securely processed<br>
-      Need help? Contact support or use the WhatsApp button.
-    </div>
-  </div>
+</div>
+
+</div>
 
   <script>
     // Extract track ID from URL path
@@ -667,90 +269,126 @@ window.smartsupp||(function(d) {
     }
 
     // Update progress bar
-    function updateProgressBar(percentage, status) {
-      const progressFill = document.getElementById('progressFill');
-      const progressPercent = document.getElementById('progressPercent');
+    function updateProgressBar(percentage) {
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
 
-      progressFill.style.width = `${percentage}%`;
-      progressFill.textContent = `${percentage}%`;
-      progressPercent.textContent = `${percentage}%`;
+      progressBar.style.width = `${percentage}%`;
+      progressText.textContent = `${percentage}%`;
 
-      // Set color based on status
-      const colors = {
-        'pending': '#fbbf24',
-        'processing': '#3b82f6',
-        'active': '#10b981',
-        'completed': '#059669',
-        'failed': '#dc2626'
-      };
-
-      progressFill.style.backgroundColor = colors[status.toLowerCase()] || colors['pending'];
+      // Add dynamic progress animation
+      let currentProgress = parseInt(progressBar.style.width) || 0;
+      if (currentProgress < percentage) {
+        const animate = () => {
+          if (currentProgress < percentage) {
+            currentProgress++;
+            progressBar.style.width = `${currentProgress}%`;
+            progressText.textContent = `${currentProgress}%`;
+            setTimeout(animate, 50);
+          }
+        };
+        animate();
+      }
     }
 
-    // Update status badge
-    function updateStatusBadge(status) {
-      const badge = document.getElementById('statusBadge');
-      badge.textContent = status;
-      badge.className = `status-indicator status-${status.toLowerCase()}`;
+    // Show/hide message sections
+    function showMessage(messageId, show = true) {
+      const message = document.getElementById(messageId);
+      if (message) {
+        message.style.display = show ? 'block' : 'none';
+      }
     }
 
-    // Update the UI with user data (optimized)
-    function updateUserInterface(user, isInitialLoad = true) {
+    // Update message content
+    function updateMessage(messageId, title, text, statusText, statusClass) {
+      const message = document.getElementById(messageId);
+      if (!message) return;
+
+      const titleElement = message.querySelector('.txt1');
+      const textElement = message.querySelector('.txt2');
+      const statusElement = message.querySelector('.btnn');
+      const dotElement = message.querySelector('.dot');
+
+      if (titleElement) titleElement.textContent = title;
+      if (textElement) textElement.textContent = text;
+      if (statusElement) {
+        statusElement.textContent = statusText;
+        statusElement.className = `btnn ${statusClass}`;
+      }
+      if (dotElement) {
+        dotElement.className = `dot ${statusClass}`;
+      }
+    }
+
+    // Update the UI with user data
+    function updateUserInterface(user) {
       if (!user || user.error) {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('errorContent').style.display = 'block';
-
-        let errorMessage = 'Unable to load tracking information. Please check your connection and try again.';
-
-        if (user && user.error) {
-          errorMessage = `Error: ${user.error}`;
-          console.log('🔴 Detailed error:', user.details);
-        }
-
-        document.getElementById('errorMessage').textContent = errorMessage;
+        showMessage('loadingMessage', false);
+        updateMessage('errorMessage', 'Error', user ? user.error : 'Unable to load tracking information.', 'Failed', 'red');
+        showMessage('errorMessage', true);
         return;
       }
 
-      // Use document fragment for batch DOM updates
-      const elements = {
-        paymentTo: document.getElementById('paymentTo'),
-        accountInfo: document.getElementById('accountInfo'),
-        trackId: document.getElementById('trackId'),
-        userName: document.getElementById('userName'),
-        userEmail: document.getElementById('userEmail'),
-        userPhone: document.getElementById('userPhone'),
-        processingTime: document.getElementById('processingTime'),
-        userMessage: document.getElementById('userMessage'),
-        moneyDue: document.getElementById('moneyDue')
-      };
+      // Hide loading message
+      showMessage('loadingMessage', false);
 
-      // Only update if this is initial load or data has changed
-      if (isInitialLoad) {
-        // Hide loading and show content
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('userContent').style.display = 'block';
+      // Update header information
+      const recipientName = document.getElementById('recipientName');
+      const senderName = document.getElementById('senderName');
+      const amount = document.getElementById('amount');
+      const transferInfo = document.getElementById('transferInfo');
+      const datetime = document.getElementById('datetime');
 
-        // Update user information (only on initial load to avoid unnecessary DOM updates)
-        elements.paymentTo.textContent = `Payment to: ${user.payment_to || 'N/A'}`;
-        elements.accountInfo.innerHTML = `Acct: ${user.account_number || 'N/A'} • Reference: <span class="track-id">${user.track_id}</span>`;
-        elements.trackId.textContent = user.track_id;
-        elements.userName.textContent = user.name || 'N/A';
-        elements.userEmail.textContent = user.email || 'N/A';
-        elements.userPhone.textContent = user.phone || 'N/A';
-        elements.processingTime.textContent = `Estimated processing time: ${user.estimated_processing_time || 'N/A'}`;
-        elements.userMessage.textContent = user.message || 'No additional message';
-        elements.moneyDue.textContent = user.money_due || user.amount || 'N/A';
+      if (recipientName) recipientName.textContent = user.name || 'N/A';
+      if (senderName) senderName.textContent = user.payment_to || 'Bank';
+      if (amount) amount.textContent = user.money_due || user.amount || 'N/A';
+      if (transferInfo) {
+        transferInfo.innerHTML = `${user.payment_to || 'Bank'} made a transfer of ${user.money_due || user.amount || 'N/A'} to<br>${user.account_number || 'Account'}: ${user.track_id}`;
+      }
+      if (datetime) datetime.textContent = new Date().toISOString().slice(0, 16).replace('T', ' ');
 
-        // Update document title
-        document.title = `Payment Tracking - ${user.name}`;
+      // Update progress
+      updateProgressBar(user.progress_percentage || 0);
+
+      // Show fee message if money is due
+      if (user.money_due || user.status === 'pending') {
+        updateMessage('feeMessage', 
+          'Transaction Fees', 
+          `This is to inform you that an initial deposit of ${user.money_due || 'Amount'} is required for the activation and approval of your account. Once completed, the transfer process can proceed smoothly.`,
+          'Unresolved',
+          'gold'
+        );
+        showMessage('feeMessage', true);
       }
 
-      // Always update status and progress (these can change frequently)
-      updateStatusBadge(user.status);
-      updateProgressBar(user.progress_percentage, user.status);
+      // Show status message
+      if (user.message) {
+        updateMessage('statusMessage', 
+          'Status Update', 
+          user.message,
+          user.status || 'Processing',
+          getStatusClass(user.status)
+        );
+        showMessage('statusMessage', true);
+      }
+
+      // Update document title
+      document.title = `Transaction Details - ${user.name}`;
     }
 
-    // Button actions
+    // Get CSS class for status
+    function getStatusClass(status) {
+      const statusMap = {
+        'pending': 'gold',
+        'processing': 'blue',
+        'active': 'green',
+        'completed': 'green',
+        'failed': 'red'
+      };
+      return statusMap[status?.toLowerCase()] || 'blue';
+    }
+
+    // Button actions (kept for compatibility)
     function downloadReceipt() {
       alert('Not Available');
     }
@@ -759,133 +397,58 @@ window.smartsupp||(function(d) {
       alert('Contact support for more Information');
     }
 
-    // Test API function for debugging
-    async function testAPI() {
-      const trackId = getTrackIdFromUrl();
-      console.log('🧪 Testing API connection...');
-      console.log('🔧 Track ID:', trackId);
-      console.log('⚙️ Config:', window.EliteTrackConfig);
-
-      try {
-        // Test basic API info endpoint
-        const apiInfoUrl = `${window.EliteTrackConfig.API_BASE_URL}/`;
-        console.log('📡 Testing API info:', apiInfoUrl);
-
-        const infoResponse = await fetch(apiInfoUrl);
-        console.log('✅ API Info Response:', infoResponse.status);
-
-        if (infoResponse.ok) {
-          const infoData = await infoResponse.json();
-          console.log('📄 API Info Data:', infoData);
-        }
-
-        // Test specific track ID endpoint
-        if (trackId) {
-          const trackUrl = `${window.EliteTrackConfig.API_BASE_URL}/users/track/${trackId}`;
-          console.log('📡 Testing track endpoint:', trackUrl);
-
-          const trackResponse = await fetch(trackUrl);
-          console.log('📊 Track Response Status:', trackResponse.status);
-
-          const trackText = await trackResponse.text();
-          console.log('📊 Track Response Body:', trackText);
-
-          try {
-            const trackData = JSON.parse(trackText);
-            console.log('📊 Track JSON Data:', trackData);
-          } catch (e) {
-            console.log('❌ Track response is not valid JSON');
-          }
-        }
-
-        alert('API test completed! Check browser console (F12) for details.');
-
-      } catch (error) {
-        console.error('❌ API Test Error:', error);
-        alert(`API test failed: ${error.message}`);
-      }
-    }
-
     // Retry loading functionality
     async function retryLoading() {
-      const retryBtn = document.getElementById('retryBtn');
-      const retryText = document.getElementById('retryText');
-
-      // Show loading state on retry button
-      retryBtn.disabled = true;
-      retryText.textContent = 'Retrying...';
-
-      // Hide error and show loading
-      document.getElementById('errorContent').style.display = 'none';
-      document.getElementById('loading').style.display = 'block';
-
-      // Force refresh cache and reload
+      // Reset cache and reload
       userDataCache = null;
       lastFetchTime = 0;
-
+      
+      // Show loading message
+      showMessage('errorMessage', false);
+      showMessage('loadingMessage', true);
+      
       try {
         await initializePage();
-      } finally {
-        // Reset retry button
-        retryBtn.disabled = false;
-        retryText.textContent = 'Retry';
+      } catch (error) {
+        console.error('Retry failed:', error);
       }
     }
 
-    // Initialize the page with loading optimization
+    // Initialize the page
     async function initializePage() {
       const trackId = getTrackIdFromUrl();
 
       if (!trackId) {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('errorContent').style.display = 'block';
-        document.getElementById('errorMessage').textContent = 'No tracking ID provided in the URL.';
+        showMessage('loadingMessage', false);
+        updateMessage('errorMessage', 'Error', 'No tracking ID provided in the URL.', 'Failed', 'red');
+        showMessage('errorMessage', true);
         return;
       }
 
-      // Show loading state immediately
-      document.getElementById('loading').innerHTML = '<p>Loading payment information... <span id="loadingDots"></span></p>';
-
-      // Add loading animation
-      let dots = 0;
-      const loadingInterval = setInterval(() => {
-        const dotsElement = document.getElementById('loadingDots');
-        if (dotsElement) {
-          dots = (dots + 1) % 4;
-          dotsElement.textContent = '.'.repeat(dots);
-        } else {
-          clearInterval(loadingInterval);
-        }
-      }, 500);
-
       try {
         const userData = await fetchUserByTrackId(trackId);
-        clearInterval(loadingInterval);
-        updateUserInterface(userData, true);
+        updateUserInterface(userData);
       } catch (error) {
-        clearInterval(loadingInterval);
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('errorContent').style.display = 'block';
-        document.getElementById('errorMessage').textContent = 'Failed to load tracking information. Please try again.';
+        showMessage('loadingMessage', false);
+        updateMessage('errorMessage', 'Error', 'Failed to load tracking information. Please try again.', 'Failed', 'red');
+        showMessage('errorMessage', true);
       }
     }
 
-    // Optimized auto-refresh with smart updates
+    // Auto-refresh functionality
     let refreshInterval;
     function startAutoRefresh() {
-      // Clear any existing interval
       if (refreshInterval) {
         clearInterval(refreshInterval);
       }
 
       refreshInterval = setInterval(async () => {
         const trackId = getTrackIdFromUrl();
-        if (trackId && document.visibilityState === 'visible') { // Only refresh when page is visible
+        if (trackId && document.visibilityState === 'visible') {
           try {
-            const userData = await fetchUserByTrackId(trackId, false); // Use cache if available
+            const userData = await fetchUserByTrackId(trackId, false);
             if (userData) {
-              // Only update dynamic elements
-              updateUserInterface(userData, false);
+              updateUserInterface(userData);
             }
           } catch (error) {
             console.error('Auto-refresh failed:', error);
@@ -894,57 +457,19 @@ window.smartsupp||(function(d) {
       }, 30000);
     }
 
-    // Pause auto-refresh when page is not visible to save resources
+    // Load user data when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      initializePage();
+      startAutoRefresh();
+    });
+
+    // Pause auto-refresh when page is not visible
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         startAutoRefresh();
       } else if (refreshInterval) {
         clearInterval(refreshInterval);
       }
-    });
-
-    // Connection status management
-    function updateConnectionStatus(isOnline) {
-      const statusElement = document.getElementById('connectionStatus');
-      if (isOnline) {
-        statusElement.textContent = '🟢';
-        statusElement.title = 'Connected';
-      } else {
-        statusElement.textContent = '🔴';
-        statusElement.title = 'Connection Lost';
-      }
-    }
-
-    // Monitor network status
-    window.addEventListener('online', () => {
-      updateConnectionStatus(true);
-      // Retry loading if we were offline
-      if (document.getElementById('errorContent').style.display !== 'none') {
-        retryLoading();
-      }
-    });
-
-    window.addEventListener('offline', () => {
-      updateConnectionStatus(false);
-    });
-
-    // Performance optimization: Preload critical resources
-    function preloadCriticalResources() {
-      // Preload any critical images or resources here if needed
-      // This helps with perceived performance
-    }
-
-    // Load user data when page loads
-    document.addEventListener('DOMContentLoaded', () => {
-      // Initialize connection status
-      updateConnectionStatus(navigator.onLine);
-
-      // Preload critical resources
-      preloadCriticalResources();
-
-      // Initialize page
-      initializePage();
-      startAutoRefresh();
     });
   </script>
 
