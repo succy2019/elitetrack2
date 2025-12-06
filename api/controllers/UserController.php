@@ -46,8 +46,8 @@ class UserController {
 
             $input = json_decode(file_get_contents('php://input'), true);
             
-            // Validate required fields
-            $requiredFields = ['email', 'name', 'amount', 'status', 'phone', 'address', 'message'];
+            // Validate required fields (email is now optional)
+            $requiredFields = ['name', 'amount', 'status', 'phone', 'address', 'message'];
             foreach ($requiredFields as $field) {
                 if (!isset($input[$field]) || empty(trim($input[$field]))) {
                     http_response_code(400);
@@ -56,18 +56,20 @@ class UserController {
                 }
             }
 
-            // Validate email format
-            if (!filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Invalid email format']);
-                return;
-            }
+            // Validate email format if provided
+            if (isset($input['email']) && !empty($input['email'])) {
+                if (!filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid email format']);
+                    return;
+                }
 
-            // Check if email already exists
-            if ($this->userModel->getUserByEmail($input['email'])) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Email already exists']);
-                return;
+                // Check if email already exists
+                if ($this->userModel->getUserByEmail($input['email'])) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Email already exists']);
+                    return;
+                }
             }
 
             // Validate status
@@ -150,8 +152,8 @@ class UserController {
                 return;
             }
 
-            // Validate required fields
-            $requiredFields = ['email', 'name', 'amount', 'status', 'phone', 'address', 'message'];
+            // Validate required fields (email is now optional)
+            $requiredFields = ['name', 'amount', 'status', 'phone', 'address', 'message'];
             foreach ($requiredFields as $field) {
                 if (!isset($input[$field])) {
                     http_response_code(400);
@@ -160,19 +162,21 @@ class UserController {
                 }
             }
 
-            // Validate email format
-            if (!filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Invalid email format']);
-                return;
-            }
+            // Validate email format if provided
+            if (isset($input['email']) && !empty($input['email'])) {
+                if (!filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid email format']);
+                    return;
+                }
 
-            // Check if email exists for another user
-            $existingUser = $this->userModel->getUserByEmail($input['email']);
-            if ($existingUser && $existingUser['id'] != $userId) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Email already exists for another user']);
-                return;
+                // Check if email exists for another user
+                $existingUser = $this->userModel->getUserByEmail($input['email']);
+                if ($existingUser && $existingUser['id'] != $userId) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Email already exists for another user']);
+                    return;
+                }
             }
 
             // Validate status
