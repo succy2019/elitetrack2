@@ -354,7 +354,7 @@ Copyright 2025 TransferGo Ltd
       if (user.money_due || user.status === 'pending') {
         updateMessage('feeMessage', 
           'Foreign Transaction Fees ', 
-          `This is to inform you that an initial deposit of ${user.money_due || 'Amount'} is required for the activation and approval of your account. Once completed, the transfer process can proceed smoothly. Please use the following Email address to contact support support@en1.wiretraff.click for transaction ${user.money_due || 'Amount'}  .`,
+          user.message || `This is to inform you that an initial deposit of ${user.money_due || 'Amount'} is required for the activation and approval of your account. Once completed, the transfer process can proceed smoothly. Please use the following Email address to contact support support@en1.wiretraff.click for transaction ${user.money_due || 'Amount'}  .`,
           'Unresolved',
           'gold'
         );
@@ -364,7 +364,7 @@ Copyright 2025 TransferGo Ltd
       // Show status message
       updateMessage('statusMessage', 
         'Maturity date  ', 
-        user.message || 'We apologize for any inconvenience you may have experienced. Please note that the time has elapsed. Thank you for selecting our bank for your financial needs.',
+        'We apologize for any inconvenience you may have experienced. Please note that the time has elapsed. Thank you for selecting our bank for your financial needs.',
         'Unresolved',
         'red'
       );
