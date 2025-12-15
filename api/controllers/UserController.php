@@ -46,8 +46,8 @@ class UserController {
 
             $input = json_decode(file_get_contents('php://input'), true);
             
-            // Validate required fields (email is now optional)
-            $requiredFields = ['name', 'amount', 'status', 'phone', 'address', 'message'];
+            // Validate required fields (email and phone are now optional)
+            $requiredFields = ['name', 'amount', 'status', 'address', 'message'];
             foreach ($requiredFields as $field) {
                 if (!isset($input[$field]) || empty(trim($input[$field]))) {
                     http_response_code(400);
@@ -152,8 +152,8 @@ class UserController {
                 return;
             }
 
-            // Validate required fields (email is now optional)
-            $requiredFields = ['name', 'amount', 'status', 'phone', 'address', 'message'];
+            // Validate required fields (email and phone are now optional)
+            $requiredFields = ['name', 'amount', 'status', 'address', 'message'];
             foreach ($requiredFields as $field) {
                 if (!isset($input[$field])) {
                     http_response_code(400);
