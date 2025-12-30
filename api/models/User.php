@@ -31,11 +31,11 @@ class User {
             
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
-                $userData['email'],
+                $userData['email'] ?? null,
                 $userData['name'],
                 $userData['amount'],
                 $userData['status'],
-                $userData['phone'],
+                $userData['phone'] ?? null,
                 $userData['address'],
                 $userData['message'],
                 $trackId,
