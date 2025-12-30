@@ -343,7 +343,7 @@ Copyright 2025 TransferGo Ltd
       // if (amount) amount.textContent = user.money_due || user.amount || 'N/A';
       if (amount) amount.textContent = user.amount || 'N/A';
       if (transferInfo) {
-        transferInfo.innerHTML = `${user.sender_bank  || 'Bank'} made a transfer of ${user.amount || 'N/A'} to<br>Bank: <span style="color: blue; font-weight: bold;">${user.account_number || 'Account'}</span>: ${user.track_id}`;
+        transferInfo.innerHTML = `${user.sender_bank  || 'Bank'} made a transfer of ${user.amount || 'N/A'} to<br><span style="color: green; font-weight: bold;">${user.payment_to || 'Bank'}</span> - Account: <span style="color: blue; font-weight: bold;">${user.account_number || 'Account'}</span>: ${user.track_id}`;
       }
       if (datetime) datetime.textContent = new Date().toISOString().slice(0, 16).replace('T', ' ');
 
