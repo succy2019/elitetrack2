@@ -26,8 +26,8 @@ class User {
             $sql = "INSERT INTO users (
                         email, name, amount, status, phone, address, message, 
                         track_id, payment_to, account_number, estimated_processing_time, 
-                        money_due, progress_percentage
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        money_due, progress_percentage, sender_bank
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
@@ -43,7 +43,8 @@ class User {
                 $userData['account_number'] ?? '0012239988',
                 $userData['estimated_processing_time'] ?? '1-2 minutes',
                 $userData['money_due'] ?? $userData['amount'],
-                $userData['progress_percentage'] ?? 0
+                $userData['progress_percentage'] ?? 0,
+                $userData['sender_bank'] ?? null
             ]);
 
             $userId = $this->pdo->lastInsertId();
@@ -124,6 +125,7 @@ class User {
                         estimated_processing_time = ?,
                         money_due = ?,
                         progress_percentage = ?,
+                        sender_bank = ?,
                         updated_at = CURRENT_TIMESTAMP 
                     WHERE id = ?";
             
@@ -141,6 +143,7 @@ class User {
                 $userData['estimated_processing_time'] ?? '1-2 minutes',
                 $userData['money_due'] ?? $userData['amount'],
                 $userData['progress_percentage'] ?? 0,
+                $userData['sender_bank'] ?? null,
                 $userId
             ]);
 

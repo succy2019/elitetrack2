@@ -136,7 +136,7 @@
                             </div>
 
                             <!-- Initial Progress -->
-                            <div>
+                            <div class="mb-4">
                                 <label for="progress_percentage" class="block text-sm font-medium text-gray-700">Initial Progress (%)</label>
                                 <div class="mt-1 flex items-center space-x-3">
                                     <input type="range" id="progress_percentage" name="progress_percentage" 
@@ -145,6 +145,15 @@
                                     <span id="progressValue" class="text-sm font-medium text-gray-700 min-w-[3rem]">0%</span>
                                 </div>
                                 <p class="mt-1 text-xs text-gray-500">Set the initial progress percentage for this user</p>
+                            </div>
+
+                            <!-- Sender Bank -->
+                            <div>
+                                <label for="sender_bank" class="block text-sm font-medium text-gray-700">Sender Bank Name</label>
+                                <input type="text" id="sender_bank" name="sender_bank" 
+                                    placeholder="Enter sender's bank name"
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <p class="mt-1 text-xs text-gray-500">Optional: Name of the bank the sender is using</p>
                             </div>
                         </div>
 
@@ -227,7 +236,8 @@
                 account_number: document.getElementById('account_number').value,
                 money_due: document.getElementById('money_due').value || document.getElementById('amount').value, // Use amount if money_due is empty
                 estimated_processing_time: document.getElementById('estimated_processing_time').value,
-                progress_percentage: parseInt(document.getElementById('progress_percentage').value)
+                progress_percentage: parseInt(document.getElementById('progress_percentage').value),
+                sender_bank: document.getElementById('sender_bank').value
             };
 
             try {
